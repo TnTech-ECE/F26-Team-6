@@ -55,8 +55,12 @@ In this section, the team will discuss and clearly define their collective expec
 ### **6. Conflict Resolution**
 
 - **Expectation:** The team will:
-  - Disagreements will be resolved via a majority vote following an open, objective discussion of the merits of each perspective.
-  - In extreme cases, the team will first bring it up to the team’s advisor and if it is still not decided the team will bring it up to the instructors.
+  - Address conflicts promptly through open dialogue.
+  - Use a step-by-step approach to resolve issues:
+    1. Discuss the issue privately between involved parties.
+    2. If unresolved, bring the issue to the team for discussion.
+    3. Seek input from the instructor if necessary.
+  - Focus on finding mutually acceptable solutions.
 
 ### **7. Deadlines**
 
