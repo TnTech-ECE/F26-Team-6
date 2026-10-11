@@ -191,9 +191,9 @@ A suitable board will be used to perform image processing, machine-learning, and
 ## Personnel
 Team 6 consist of members whose experience and expertise covers hardware integration, programming, and technical writing. Individual skills as follows:
 
-*   **Ben Heimermann:** C/C++, 
-*   **Michael Lamberth:** C/C++, 
-*   **Samuel Oke:** C/C++, 
+*   **Ben Heimermann:** C/C++, 3d-modeling, Wiring and schematics
+*   **Michael Lamberth:** C/C++, Python, Linux, Embedded Systems
+*   **Samuel Oke:** C/C++, Wiring and Schematics, Hardware and Software Integration 
 *   **Lucas Taylor:** C/C++, Python, Embedded Systems, Linux, Technical Documentation
 *   **Aaron Thongmanivong:** C/C++, Python/MicroPython, Technical Writing, Embedded Systems
 
