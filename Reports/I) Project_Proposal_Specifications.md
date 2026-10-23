@@ -29,93 +29,136 @@ The project is intended to remain portable across future drone models and comput
 The following specifications define the initial problem boundaries. Numerical limits will be finalized after the team receives the drone geometry, dock dimensions, inspection-time requirement, environmental range, and acceptance criteria from the sponsor.
 
 ### System Capabilities
-*   The system should begin an inspection only after the dock confirms that the drone is present, correctly positioned, and no conflicting dock motion is active.
-*   The system aims to collect visible, thermal, and approved acoustic data using a repeatable inspection sequence.
-*   The system is expected to associate each measurement with an inspection identifier, timestamp, sensor identifier, drone or asset identifier, and component region.
-*   The system should evaluate defined components individually rather than returning only one aircraft-wide result.
-*   The system is designed to return PASS, WARN, FAIL, or INSUFFICIENT DATA for each required component or inspection region.
-*   The system should preserve the image, thermal region, waveform, spectrum, or other evidence associated with a warning or failure.
-*   The system will report sensor, lighting, communication, storage, and processing faults separately from detected drone defects.
-*   The system aims to run routine inference locally without requiring a continuous internet connection.
-
+-	The system shall begin an inspection only after the dock confirms that the drone is present, correctly positioned, and no conflicting dock motion is active.
+-	The system shall collect visible, thermal, and approved acoustic data using a repeatable inspection sequence.
+-	The system shall associate each measurement with an inspection identifier, timestamp, sensor identifier, drone or asset identifier, and component region.
+-	The system shall evaluate defined components individually rather than returning only one aircraft-wide result.
+-	The system shall return PASS, WARN, FAIL, or INSUFFICIENT DATA for each required component or inspection region.
+-	The system shall preserve the image, thermal region, waveform, spectrum, or other evidence associated with a warning or failure.
+-	The system shall report sensor, lighting, communication, storage, and processing faults separately from detected drone defects.
+-	The system shall run routine inference locally without requiring a continuous internet connection.
 ### Visible Imaging and Controlled Lighting
-*   The visible-camera subsystem plans to use USB Video Class or another documented interface supported by the selected host.
-*   The system should provide repeatable coverage of all required inspection regions using fixed or mechanically repeatable camera mounts.
-*   Camera intrinsics and lens distortion are expected to be calibrated, and calibration information will be retained with the camera configuration.
-*   Exposure, gain, focus, white balance, and other image settings should remain fixed after calibration unless the inspection procedure explicitly controls their adjustment.
-*   The lighting subsystem is designed to support independently controlled illumination suitable for both general-condition imaging and defect-enhancement imaging.
-*   The system will verify that required lighting channels operate correctly before accepting an image for analysis.
-*   The system aims to detect unusable frames caused by blur, obstruction, saturation, insufficient illumination, missing data, or incorrect camera state.
-*   Visible captures should be synchronized with the inspection sequence so that dock motion, lighting transitions, or thermal captures do not corrupt the measurement.
-
+-	The visible-camera subsystem shall use USB Video Class or another documented interface supported by the selected host. In this proposal, UVC refers to USB Video Class, not ultraviolet-C imaging [7].
+-	The system shall provide repeatable coverage of all required inspection regions using fixed or mechanically repeatable camera mounts.
+-	Camera intrinsics and lens distortion shall be calibrated, and calibration information shall be retained with the camera configuration [8].
+-	Exposure, gain, focus, white balance, and other image settings shall be fixed after calibration unless the inspection procedure explicitly controls their adjustment.
+-	The lighting subsystem shall support independently controlled illumination suitable for both general-condition imaging and defect-enhancement imaging.
+-	The system shall verify that required lighting channels operate correctly before accepting an image for analysis.
+-	The system shall detect unusable frames caused by blur, obstruction, saturation, insufficient illumination, missing data, or incorrect camera state.
+-	Visible captures shall be synchronized with the inspection sequence so that dock motion, lighting transitions, or thermal capture do not corrupt the measurement.
+- The camera subsystem shall achieve a target image sampling density of **6 pixels/mm** throughout each designated inspection region.
+- The camera array shall cover the drone's top surface and four vertical sides, with minimal overlap between adjacent views where practical.
+- The camera subsystem shall support completion of the overall inspection cycle within **10 seconds**.
 ### Thermal Imaging
-*   The thermal subsystem should capture data with the visible inspection lights off unless testing demonstrates that the lighting system does not alter the required thermal measurement.
-*   Thermal data is expected to be captured after a defined post-docking interval and should include the elapsed time since landing or motor shutdown.
-*   Each thermal record should include available ambient temperature, camera status, calibration state, and operating-condition metadata.
-*   The selected thermal camera and optical path aim to provide a sufficient field of view and pixels on each required component for the intended anomaly assessment.
-*   If absolute temperature is required, the system will use a radiometric camera and account for emissivity, reflected background temperature, viewing angle, optical-window transmission, and model-specific calibration requirements.
-*   If only relative anomaly detection is required, the system plans to compare equivalent components and validated healthy baselines under similar operating conditions.
-*   The thermal camera should be isolated from avoidable heat produced by processors, lighting drivers, power converters, chargers, fans, and dock airflow.
-*   The system is configured to reject a thermal result when the camera is unavailable, calibrating, obstructed, thermally unstable, or outside its approved operating condition.
-
+-	The thermal subsystem shall capture data with the visible inspection lights off unless testing demonstrates that the lighting system does not alter the required thermal measurement.
+-	Thermal data shall be captured after a defined post-docking interval and shall include the elapsed time since landing or motor shutdown.
+-	Each thermal record shall include available ambient temperature, camera status, calibration state, and operating-condition metadata.
+-	The selected thermal camera and optical path shall provide sufficient field of view and pixels on each required component for the intended anomaly assessment.
+-	If absolute temperature is required, the system shall use a radiometric camera and account for emissivity, reflected background temperature, viewing angle, optical-window transmission, and model-specific calibration requirements [9].
+-	If only relative anomaly detection is required, the system shall compare equivalent components and validated healthy baselines under similar operating conditions.
+-	The thermal camera shall be isolated from avoidable heat produced by processors, lighting drivers, power converters, chargers, fans, and dock airflow.
+-	The system shall not accept a thermal result when the camera is unavailable, calibrating, obstructed, thermally unstable, or outside its approved operating condition.
 ### Acoustic Inspection
-*   The acoustic subsystem aims to record a repeatable audio interval using a documented microphone interface and sampling configuration.
-*   Any motor-spin or powered acoustic test will occur only when permitted by the drone manufacturer, sponsor, dock safety controls, and project test procedure.
-*   The recording should include the commanded operating state, sample rate, duration, microphone identifier, and relevant dock or environmental conditions.
-*   The system will retain either the original recording or an approved processed representation sufficient for later review and model validation.
-*   Acoustic preprocessing may include filtering, normalization, time-frequency analysis, spectral features, or learned features produced by the selected model.
-*   The system is expected to reject or flag recordings affected by clipping, missing samples, excessive background noise, dock actuator noise, or an incorrect motor command.
-*   Acoustic results should remain identifiable as a separate sensor output before they are combined with visible or thermal evidence.
-
+-	The acoustic subsystem shall record a repeatable audio interval using a documented microphone interface and sampling configuration.
+-	Any motor-spin or powered acoustic test shall occur only when permitted by the drone manufacturer, sponsor, dock safety controls, and project test procedure.
+-	The recording shall include the commanded operating state, sample rate, duration, microphone identifier, and relevant dock or environmental conditions.
+-	The system shall retain either the original recording or an approved processed representation sufficient for later review and model validation.
+-	Acoustic preprocessing may include filtering, normalization, time-frequency analysis, spectral features, or learned features produced by the selected model.
+-	The system shall reject or flag recordings affected by clipping, missing samples, excessive background noise, dock actuator noise, or an incorrect motor command.
+-	Acoustic results shall remain identifiable as a separate sensor output before they are combined with visible or thermal evidence.
+- The microphone subsystem shall record audio using a documented sample rate, bit depth, channel count, and recording duration.
+- The microphone shall be mounted at a documented position relative to the drone's four motor pods.
+- The microphone subsystem shall support completion of the overall inspection cycle within **10 seconds**.
 ### Data Processing and Decision Logic
-*   Sensor acquisition, quality checks, preprocessing, model inference, result fusion, storage, and dock communication are implemented as separate functional stages.
-*   The software is designed to support the replacement of a camera, microphone, thermal module, inference model, or processing platform through documented interfaces or adapters.
-*   The pipeline should resize, normalize, register, or otherwise transform sensor data only according to the requirements of the selected method.
-*   If pixel-level or feature-level visible-thermal fusion is used, the system aims to include a validated spatial-registration method.
-*   The visible-only inspection path is expected to remain testable independently of the thermal and acoustic paths.
-*   The system will record inference time, end-to-end inspection time, dropped or invalid data, model version, configuration version, and processing-resource utilization.
-*   A multimodal result should identify which sensors contributed to the decision and avoid hiding the loss or failure of one sensor.
-*   Inspection thresholds are expected to be established from prototype testing with healthy units and representative defects rather than assumed in advance.
-*   Trained models will be versioned separately from the camera acquisition and dock-control software.
-
+-	Sensor acquisition, quality checks, preprocessing, model inference, result fusion, storage, and dock communication shall be implemented as separate functional stages.
+-	The software shall support replacement of a camera, microphone, thermal module, inference model, or processing platform through documented interfaces or adapters.
+-	The pipeline shall resize, normalize, register, or otherwise transform sensor data only according to the requirements of the selected method.
+-	If pixel-level or feature-level visible-thermal fusion is used, the system shall include a validated spatial-registration method.
+-	The visible-only inspection path shall remain testable independently of the thermal and acoustic paths.
+-	The system shall record inference time, end-to-end inspection time, dropped or invalid data, model version, configuration version, and processing-resource utilization.
+-	A multimodal result shall identify which sensors contributed to the decision and shall not hide the loss or failure of one sensor.
+-	Inspection thresholds shall be established from prototype testing with healthy units and representative defects rather than assumed in advance.
+-	Trained models shall be versioned separately from the camera acquisition and dock-control software.
 ### Preliminary AI Pipeline Specifications
-*   The AI pipeline should accept frames produced by the UVC camera subsystem.
-*   The AI pipeline should accept frames or processed image data produced by the thermal imaging subsystem.
-*   The system aims to timestamp incoming frames so visible and thermal images can be paired as closely as practical.
-*   The pipeline will include a method of resizing and normalizing images into the format expected by the selected neural network.
-*   If pixel-level or feature-level RGB-T fusion is used, the pipeline aims to include a method for spatially registering the thermal and visible images.
-*   The AI model is expected to provide readable outputs such as object class, confidence level, bounding-box coordinates, and other necessary information.
-*   The software will record basic performance information such as inference time, frame rate, and dropped frames.
-*   The AI pipeline is designed to be modular enough to allow different trained models to be tested without redesigning the image-acquisition subsystem.
-*   The system should be capable of continuing operation if one imaging modality temporarily becomes unavailable.
-*   The final inference system plans to run locally on the selected processing hardware without requiring continuous internet access.
-*   The AI system may include object tracking to reduce unstable detections between consecutive video frames.
-*   The training process may occur on a more powerful desktop computer or cloud GPU, and the final trained model will then be exported and deployed onto the embedded computer.
+-	The following specifications are proposed for the AI subsystem and can be changed depending on the circumstances.
+-	The AI pipeline shall accept frames produced by the UVC camera subsystem.
+-	The AI pipeline shall accept frames or processed image data produced by the thermal imaging subsystem.
+-	The system shall timestamp incoming frames so visible and thermal images can be paired as closely as practical. 
+-	The pipeline shall include a method of resizing and normalizing images into the format expected by the selected neural network.
+-	If pixel-level or feature-level RGB-T fusion is used, the pipeline shall include a method for spatially registering the thermal and visible images.
+-	The AI model shall provide readable outputs such as object class, confidence level, bounding-box coordinates, and other necessary information.
+-	The software shall record basic performance information such as inference time, frame rate, and dropped frames.
+-	The AI pipeline shall be modular enough to allow different trained models to be tested without redesigning the image-acquisition subsystem.
+-	The system should be capable of continuing operation if one imaging modality temporarily becomes unavailable.
+-	The final inference system shall run locally on the selected processing hardware without requiring continuous internet access.
+-	The AI system may include object tracking to reduce unstable detections between consecutive video frames.
+-	The training process may occur on a more powerful desktop computer or cloud GPU. The final trained model will then be exported and deployed onto the embedded computer.
 
 ### Electrical Integration and Communications
-*   Imaging, lighting, processing, and actuator loads should use appropriately protected power branches.
-*   Continuous, startup, strobe, calibration, and simultaneous peak loads are expected to be included in the power budget.
-*   Supply and return conductors should be routed together to reduce loop area, and sensitive data or camera-power cables should be separated from motors, solenoids, chargers, and other switching loads.
-*   Inductive loads will include manufacturer-approved flyback, transient-voltage suppression, or snubber protection as appropriate.
-*   Cable shields and enclosure bonds should be terminated using short, low-impedance connections consistent with the selected interface and equipment guidance.
-*   The system plans to use the cable type, maximum length, shielding, termination, and connector requirements specified for each communication interface.
-*   Communication loss, dropped frames, device disconnection, undervoltage, and storage failure should be detected and reported.
-*   The dock interface is expected to receive a structured inspection result containing component identifiers, sensor status, evidence locations, decision state, and relevant confidence or anomaly values.
-
+-	Imaging, lighting, processing, and actuator loads shall use appropriately protected power branches.
+-	Supply and return conductors shall be routed together to reduce loop area, and sensitive data or camera-power cables shall be separated from motors, solenoids, chargers, and other switching loads.
+-	Cable shields and enclosure bonds shall be terminated using short, low-impedance connections consistent with the selected interface and equipment guidance.
+-	The system shall use the cable type, maximum length, shielding, termination, and connector requirements specified for each communication interface.
+-	Communication loss, dropped frames, device disconnection, undervoltage, and storage failure shall be detected and reported.
 ### Modularity and Maintainability
-*   Cameras, lights, microphone assemblies, thermal modules, interface adapters, and processing hardware are designed to be replaceable without redesigning the entire inspection architecture.
-*   Product-specific settings should be stored in configuration files or device-adapter modules rather than distributed throughout the application.
-*   The system plans to support recalibration after a sensor, lens, mount, light, or drone model is changed.
-*   The design aims to provide service access for lens cleaning, diffuser cleaning, connector inspection, calibration targets, and replacement of high-wear components.
-*   Documentation will identify interfaces, pinouts, supply requirements, cable requirements, calibration data, software versions, and test procedures for each subsystem.
+-	Cameras, lights, microphone assemblies, thermal modules, interface adapters, and processing hardware shall be replaceable without redesigning the entire inspection architecture.
+-	Product-specific settings shall be stored in configuration files or device-adapter modules rather than distributed throughout the application.
+-	The system shall support recalibration after a sensor, lens, mount, light, or drone model is changed.
+-	The design shall provide service access for lens cleaning, diffuser cleaning, connector inspection, calibration targets, and replacement of high-wear components.
+-	Documentation shall identify interfaces, pinouts, supply requirements, cable requirements, calibration data, software versions, and test procedures for each subsystem.
+## Constraints
+### Physical and Optical Constraints
+-	Camera quantity, field of view, working distance, mounting angle, and lens selection are limited by the internal dock geometry and the dimensional envelope of the supported drones.
+-	Required surfaces may be hidden by the landing gear, arms, payload, dock structure, or other components. The system cannot classify damage that is not represented in the captured data.
+-	Docking-position variation can change image alignment, focus, reflections, thermal regions, and acoustic coupling. Mechanical repeatability or validated image registration is required.
+-	Ordinary visible-light glass or clear plastic may block long-wave infrared energy and cannot be placed in the thermal optical path unless its transmission has been verified.
+- Camera and microphone hardware, including mounts, shall fit within the docking station's **30 × 40-inch footprint** and specified height envelope.
+- Camera fields of view shall be selected to maintain the target sampling density of **6 pixels/mm** while covering their assigned inspection regions.
+- Adjacent camera views shall minimize overlap where practical without creating unacceptable blind spots.
+- Camera and microphone acquisition shall complete within the **10-second inspection-cycle limit**.
+- Combined sensor data transfer shall remain within the measured usable USB bandwidth and available memory capacity.
+- Camera and microphone data acquisition and processing shall not run continuously while the system is idle.
+- Incremental idle power attributable to the cameras and microphone shall be measured before establishing a maximum allowable limit.
+- The system shall not rely on USB suspension or selective-suspend behavior unless support is verified for the selected hardware and software.
+### Processing and Interface Constraints
+-	The number, resolution, format, and frame rate of connected sensors are limited by the host's communication bandwidth, memory, storage rate, and processing capability.
+-	Multiple USB cameras and a USB microphone may share a host controller. Simultaneous operation must remain within the measured capacity of the selected controller and hub.
+-	Sequential capture can reduce simultaneous bandwidth demand, but the total inspection must still meet the sponsor's allowable turnaround time.
+-	MIPI, SPI, I2S, and other board-level interfaces may require short cable lengths, compatible voltage levels, driver support, device-tree configuration, or a carrier board specific to the selected host.
+-	A model that runs successfully on a development computer may exceed the memory, latency, power, or thermal limits of the deployed processor.
+### Measurement and Dataset Constraints
+-	A limited number of damaged drones or failure examples may be available. The project may require healthy-baseline anomaly detection, controlled defect samples, synthetic data, transfer learning, or a combination of these methods.
+-	Public visible-thermal or acoustic datasets may support early development but may not match the team's drone, camera geometry, dock lighting, thermal conditions, microphone placement, or target defect classes.
+-	Thermal and acoustic anomalies may indicate abnormal behavior without identifying the underlying cause. Final fault labels must be limited to what the test evidence supports.
+-	False-positive and false-negative rates cannot be assumed from performance on unrelated industrial or public datasets.
+-	PASS, WARN, and FAIL thresholds require validation on reserved data that is not used to train or tune the model.
+### Environmental and Electrical Constraints
+-	Ambient light leakage, dust, moisture, vibration, wind, rain, temperature variation, and contamination can change sensor measurements and must be addressed by the enclosure and inspection procedure.
+-	Heat retained after flight or produced during charging may resemble a thermal fault unless capture timing and operating state are controlled.
+-	Fans, nearby aircraft, dock mechanisms, traffic, wind, and precipitation may interfere with acoustic measurements.
+-	Motors, solenoids, switching regulators, chargers, and lighting drivers may introduce conducted or radiated interference into camera, microphone, and processor circuits.
+-	The available dock voltage, current capacity, grounding arrangement, connector ratings, and cable routes must be confirmed before final hardware selection.
+### Safety and Operational Constraints
+-	The inspection system shall not command propeller or motor operation unless the aircraft, enclosure, and dock controls provide an approved safe test condition.
+-	A sensor or model failure shall not be interpreted as a healthy result. Missing or unreliable data shall produce an INSUFFICIENT DATA or equivalent fault state.
+-	The inspection result shall support, not replace, manufacturer-required maintenance and human operational authority.
+-	The system shall not release a drone for flight solely because one sensing modality reports no anomaly.
+-	Stored images, audio, thermal data, identifiers, and maintenance records shall be protected according to the sponsor's access, retention, and cybersecurity requirements.
+### Procurement and Product-Neutrality Constraints
+-	Final component selection depends on verified availability, lead time, lifecycle status, environmental rating, exact interface support, documentation, and total integration cost.
+-	Any procurement or compliance requirement, including NDAA-related requirements, must be confirmed for the exact camera, lens, interface board, and finished configuration rather than assumed from a product family.
+-	The architecture shall not require a Jetson, Raspberry Pi, or any other single processing product unless the sponsor later establishes that product as a project requirement.
+-	The first prototype may use convenient development hardware, but acceptance criteria shall describe required performance and interfaces rather than a brand name.
 
-### Constraints
-*   **Physical and Optical Constraints**: Camera quantity, field of view, working distance, mounting angle, and lens selection are limited by the internal dock geometry and the dimensional envelope of the supported drones. Required surfaces may be hidden by landing gear or payloads, and docking-position variation can change image alignment. Ordinary visible-light glass or clear plastic may block long-wave infrared energy and cannot be placed in the thermal optical path unless its transmission has been verified.
-*   **Processing and Interface Constraints**: The number, resolution, format, and frame rate of connected sensors are limited by the host's communication bandwidth, memory, storage rate, and processing capability. Multiple USB cameras and a USB microphone may share a host controller; simultaneous operation must remain within the measured capacity. Sequential capture can reduce simultaneous bandwidth demand.
-*   **Measurement and Dataset Constraints**: A limited number of damaged drones or failure examples may be available. Public visible-thermal or acoustic datasets may support early development but may not match the team's drone, camera geometry, or target defect classes. Thermal and acoustic anomalies may indicate abnormal behavior without identifying the underlying cause. PASS, WARN, and FAIL thresholds require validation on reserved data.
-*   **Environmental and Electrical Constraints**: Ambient light leakage, dust, moisture, vibration, wind, rain, temperature variation, and contamination can change sensor measurements. Heat retained after flight or produced during charging may resemble a thermal fault unless capture timing and operating state are controlled.
-*   **Safety and Operational Constraints**: The inspection system will avoid commanding propeller or motor operation unless the aircraft, enclosure, and dock controls provide an approved safe test condition. A sensor or model failure cannot be interpreted as a healthy result. The inspection result is intended to support, not replace, manufacturer-required maintenance and human operational authority.
-*   **Procurement and Product-Neutrality Constraints**: Final component selection depends on verified availability, lead time, lifecycle status, environmental rating, exact interface support, documentation, and total integration cost. The architecture does not inherently require a Jetson, Raspberry Pi, or any other single processing product unless the sponsor later establishes that product as a project requirement.
+### Standards of Compliance
+| Standard or specification             | Relevance to your subsystem                          | How your team could apply it                                                                                                                                 |
+| ------------------------------------- | ---------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| ISO 12233:2024                        | Camera resolution and spatial-frequency response.    | Test whether the camera and lens preserve enough detail to detect the project's minimum defect size.                                                         |
+| ISO 15739:2023                        | Digital-camera noise and dynamic-range measurements. | Evaluate image quality under the lighting conditions expected inside the docking station.                                                                    |
+| USB-IF UVC / USB Video specifications | Camera-to-compute interface compatibility.           | Document supported video formats, resolutions, transfer modes, and host compatibility. Confirm the exact specification and version supported by each camera. |
+| USB-IF USB Audio Class specifications | USB microphone compatibility.                        | Document audio formats, sample rates, channel count, and whether the microphone operates through the expected Linux audio interface.                         |
+| IEC 60268-4:2018                      | Microphone characteristics and measurement methods.  | Compare microphone sensitivity, directional response, dynamic range, and other published performance specifications.                                         |
+
 
 ## Survey of Existing Solutions
 Several existing approaches support equipment inspection through manual checks, remote cameras, visual anomaly detection, and thermal imaging. The proposed system will use USB Video Class (UVC) cameras to observe visible damage and a thermal imaging camera to identify abnormal heat signatures.
@@ -143,32 +186,42 @@ FLIR describes thermal imaging as supporting condition monitoring of motors, bat
 
 ## Measurements of Success
 ### Functionality
-*   The AI software needs to reliably receive data from the imaging subsystem.
-*   The final implementation should be capable of processing the camera stream continuously for at least one hour without software failure.
-*   The software aims to identify and log dropped or invalid frames rather than silently failing.
-*   The RGB-only detector is expected to remain usable independently of the thermal pipeline.
-
+- The AI software shall reliably receive data from the imaging subsystem.
+- The final implementation shall be capable of processing the camera stream continuously for at least one hour without software failure.
+- The software shall identify and log dropped or invalid frames rather than silently failing.
+- The RGB-only detector shall remain usable independently of the thermal pipeline.
+- The camera subsystem shall demonstrate at least **6 pixels/mm** throughout designated inspection regions using a calibrated target.
+- The camera subsystem shall complete at least **30 inspection trials** to evaluate acquisition time, failures, and cycle-time consistency.
+- Each camera shall pass image-quality checks for sharpness, exposure, and frame completeness using validated acceptance thresholds.
+- The acquisition software shall detect disconnected cameras and failed or invalid frames.
+- The microphone subsystem shall complete at least **30 recordings** under repeatable conditions to evaluate recording consistency.
+- Each recording shall be checked for the configured sample rate, bit depth, channel count, and duration.
+- The recording software shall detect clipping, missing samples, and excessive noise according to validated acceptance thresholds.
+- The microphone's installed position shall be verified against the approved physical layout.
 ### Detection Accuracy
-*   All candidate models should be evaluated using the same held-out test images.
-*   Precision, recall, and mean average precision (mAP) will be recorded where applicable.
-*   RGB-only, thermal-only, and RGB-T models are expected to be evaluated separately so the effect of fusion can be measured.
-*   A fusion model should only replace the simpler RGB baseline if it demonstrates a measurable advantage in conditions important to the project.
-*   Special test sets plan to include normal lighting as well as poor or unusual lighting conditions.
-
-### Processing Performance
-*   End-to-end AI latency aims to be measured from acquisition of the frame through generation of the final detection output.
-*   The fused AI pipeline should process at least 90% of the frame rate supplied by the slower imaging subsystem during continuous operation.
-*   CPU, GPU/NPU, RAM, and temperature utilization will be recorded during extended tests.
-
+- All candidate models shall be evaluated using the same held-out test images.
+- Precision, recall, and mean average precision (mAP) shall be recorded where applicable.
+- RGB-only, thermal-only, and RGB-T models shall be evaluated separately so the effect of
+fusion can be measured.
+- A fusion model should only replace the simpler RGB baseline if it demonstrates a measurable advantage in conditions important to the project.
+- Special test sets should include normal lighting as well as poor or unusual lighting conditions.
+Processing Performance
+- End-to-end AI latency shall be measured from acquisition of the frame through
+generation of the final detection output.
+- The fused AI pipeline should process at least 90% of the frame rate supplied by the slower imaging subsystem during continuous operation.
+- CPU, GPU/NPU, RAM, and temperature utilization shall be recorded during extended
+tests.
 ### Reliability
-*   Loss of the thermal input should not require restarting the entire software stack if RGB-only operation is possible.
-*   Invalid camera frames are expected to be ignored without terminating the application.
-*   The pipeline plans to recover from temporary stream interruptions where practical.
-
+- Loss of the thermal input shall not require restarting the entire software stack if RGB-
+only operation is possible.
+- Invalid camera frames shall be ignored without terminating the application.
+- The pipeline shall recover from temporary stream interruptions where practical.
 ### Modularity
-*   The AI model will be stored separately from camera-acquisition code.
-*   A replacement model should be capable of being installed without redesigning the complete video pipeline.
-*   Camera preprocessing and model preprocessing are intended to be separated so changes in one subsystem do not unnecessarily affect the other.
+- The AI model shall be stored separately from camera-acquisition code.
+- A replacement model shall be capable of being installed without redesigning the complete
+video pipeline.
+- Camera preprocessing and model preprocessing shall be separated so changes in one subsystem do not unnecessarily affect the other.
+
 
 ## Resources
 The proposed system requires a combination of both commercial hardware and open-source software to accomplish the automated drone analysis. The main hardware required includes a UVC camera array to detect visual flaws, a thermal imaging camera to detect temperature anomalies, and a USB microphone for auditory analysis, especially for the propellors. These sensors complement each other to give a comprehensive diagnostic analysis of the docked drone.
@@ -177,16 +230,16 @@ A suitable board will be used to perform image processing, machine-learning, and
 
 ### Budget Document
 
-| Item | Estimated Price ($) |
-| :--- | :--- |
-| Quad-Camera UVC Array (8MP–12MP CS-Mount) | $250 |
-| Thermal Imager (FLIR Lepton 3.5 & PureThermal Board) | $300 |
-| Edge Compute Unit | $500 |
-| Standard USB Audio Class Microphone | $50 |
-| Powered USB 3.0 Hub (for sequential data orchestration) | $30 |
-| Controlled Lighting (COB LED strips, diffusers, polarizers) | $100 |
-| Mounting Hardware, Enclosures, & Wiring | $150 |
-| **Total** | **$1,380** |
+| Item                                                        | Estimated Price ($) |
+| :---------------------------------------------------------- | :------------------ |
+| Quad-Camera UVC Array (8MP–12MP CS-Mount)                   | $250                |
+| Thermal Imager (FLIR Lepton 3.5 & PureThermal Board)        | $300                |
+| Edge Compute Unit                                           | $500                |
+| Standard USB Audio Class Microphone                         | $50                 |
+| Powered USB 3.0 Hub (for sequential data orchestration)     | $30                 |
+| Controlled Lighting (COB LED strips, diffusers, polarizers) | $100                |
+| Mounting Hardware, Enclosures, & Wiring                     | $150                |
+| **Total**                                                   | **$1,380**          |
 
 ## Personnel
 Team 6 consist of members whose experience and expertise covers hardware integration, programming, and technical writing. Individual skills as follows:
@@ -242,3 +295,28 @@ Because this is a safety-critical system, the engineering team has a strict ethi
 [8] OpenCV, “Camera Calibration and 3D Reconstruction.” [Online]. Available: https://docs.opencv.org/5.0/tutorials/calib3d/camera_calibration/camera_calibration.html
 
 [9] Teledyne FLIR OEM, “Radiometry with Lepton.” [Online]. Available: https://oem.flir.com/learn/thermal-integration-made-easy/radiometry-with-lepton/
+
+[10] International Organization for Standardization, “ISO 12233:2024 — Digital Cameras — Resolution and Spatial Frequency Responses.” [Online]. Available: https://www.iso.org/standard/88626.html
+
+[11] International Organization for Standardization, “ISO 15739:2023 — Photography — Electronic Still-Picture Imaging — Noise Measurements.” [Online]. Available: https://www.iso.org/standard/82233.html
+
+[12] USB Implementers Forum, “USB Video Class v1.5 Specification.” [Online]. Available: https://www.usb.org/document-library/video-class-v15-document-set
+
+[13] USB Implementers Forum, “USB Device Class Definition for Audio Devices, Release 2.0.” [Online]. Available: https://www.usb.org/documents
+
+[14] International Electrotechnical Commission, “IEC 60268-4:2018 — Sound System Equipment — Part 4: Microphones.” [Online]. Available: https://webstore.iec.ch/
+
+[15] International Electrotechnical Commission, “IEC 62368-1 — Audio/Video, Information and Communication Technology Equipment — Part 1: Safety Requirements.” [Online]. Available: https://webstore.iec.ch/
+
+[16] IEEE, “IEEE 7000-2021 — IEEE Standard Model Process for Addressing Ethical Concerns During System Design.” [Online]. Available: https://standards.ieee.org/standard/7000-2021.html
+
+[17] International Electrotechnical Commission, “IEC 62443-4-1:2018 — Security for Industrial Automation and Control Systems — Part 4-1: Secure Product Development Lifecycle Requirements.” [Online]. Available: https://webstore.iec.ch/
+
+Note: References [10] and [11] are official standard listings; full-text access may require purchase or Tennessee Tech library access. USB-IF specifications are available through its document library.
+
+## Statement of Contributors
+- Ben Heimermann: Resources 
+- Michael Lamberth: Survey of Existing Solutions 
+- Samuel Oke: Formulating the Problem, Preliminary Inspections, and Constraints
+- Lucas Taylor: Preliminary Inspections and Measurement of Success
+- Aaron Thongmanivong: Introduction, Formulating the Problem, Preliminary Specifications, Constraints, Resources, and Specific/Broad Implications
