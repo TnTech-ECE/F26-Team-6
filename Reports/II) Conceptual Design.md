@@ -97,6 +97,10 @@ For each subsystem, team 6 has placed specifications, requirements, and constrai
 <br>
 
 ## Statement of Contributors
-
+- Ben Heimermann: Resources 
+- Michael Lamberth:  
+- Samuel Oke: 
+- Lucas Taylor: 
+- Aaron Thongmanivong:
 
 
