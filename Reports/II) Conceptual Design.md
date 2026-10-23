@@ -104,3 +104,4 @@ For each subsystem, team 6 has placed specifications, requirements, and constrai
 - Aaron Thongmanivong:
 
 
+<img src="https://github.com/TnTech-ECE/F26-Team-6/blob/conceptual-design-draft/Reports/Research%20of%20Subsystems/GanttChart.png" alt="Subsystem Diagram" width="600">
