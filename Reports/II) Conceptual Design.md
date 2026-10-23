@@ -20,58 +20,46 @@
 
 For each subsystem, team 6 has placed specifications, requirements, and constraints on the solution due to the client standards or needs, in-depth analysis of solutions, and standardized compliances.
 
-### System Capabilities
--	The system shall begin an inspection only after the dock confirms that the drone is present, correctly positioned, and no conflicting dock motion is active.
--	The system shall collect visible, thermal, and approved acoustic data using a repeatable inspection sequence.
--	The system shall associate each measurement with an inspection identifier, timestamp, sensor identifier, drone or asset identifier, and component region.
--	The system shall evaluate defined components individually rather than returning only one aircraft-wide result.
--	The system shall return PASS, WARN, FAIL, or INSUFFICIENT DATA for each required component or inspection region.
--	The system shall preserve the image, thermal region, waveform, spectrum, or other evidence associated with a warning or failure.
--	The system shall report sensor, lighting, communication, storage, and processing faults separately from detected drone defects.
--	The system shall run routine inference locally without requiring a continuous internet connection.
+### Customer Specifications
+- The chosen design shall
+- The chosen design shall
+- The chosen design shall
 
-### Visible Imaging and Controlled Lighting
--	The visible-camera subsystem shall use USB Video Class or another documented interface supported by the selected host. In this proposal, UVC refers to USB Video Class, not ultraviolet-C imaging [7].
--	The system shall provide repeatable coverage of all required inspection regions using fixed or mechanically repeatable camera mounts.
--	Camera intrinsics and lens distortion shall be calibrated, and calibration information shall be retained with the camera configuration [8].
--	Exposure, gain, focus, white balance, and other image settings shall be fixed after calibration unless the inspection procedure explicitly controls their adjustment.
--	The lighting subsystem shall support independently controlled illumination suitable for both general-condition imaging and defect-enhancement imaging.
--	The system shall verify that required lighting channels operate correctly before accepting an image for analysis.
--	The system shall detect unusable frames caused by blur, obstruction, saturation, insufficient illumination, missing data, or incorrect camera state.
--	Visible captures shall be synchronized with the inspection sequence so that dock motion, lighting transitions, or thermal capture do not corrupt the measurement.
+### Team 6's Ingenuity
+- The chosen design shall
+- The chosen design shall
+- The chosen design shall
 
-### Thermal Imaging
--	The thermal subsystem shall capture data with the visible inspection lights off unless testing demonstrates that the lighting system does not alter the required thermal measurement.
--	Thermal data shall be captured after a defined post-docking interval and shall include the elapsed time since landing or motor shutdown.
--	Each thermal record shall include available ambient temperature, camera status, calibration state, and operating-condition metadata.
--	The selected thermal camera and optical path shall provide sufficient field of view and pixels on each required component for the intended anomaly assessment.
--	If absolute temperature is required, the system shall use a radiometric camera and account for emissivity, reflected background temperature, viewing angle, optical-window transmission, and model-specific calibration requirements [9].
--	If only relative anomaly detection is required, the system shall compare equivalent components and validated healthy baselines under similar operating conditions.
--	The thermal camera shall be isolated from avoidable heat produced by processors, lighting drivers, power converters, chargers, fans, and dock airflow.
--	The system shall not accept a thermal result when the camera is unavailable, calibrating, obstructed, thermally unstable, or outside its approved operating condition.
+### Standards of Compliance
+- The chosen design shall
+- The chosen design shall
+- The chosen design shall
 
-### Acoustic Inspection
--	The acoustic subsystem shall record a repeatable audio interval using a documented microphone interface and sampling configuration.
--	Any motor-spin or powered acoustic test shall occur only when permitted by the drone manufacturer, sponsor, dock safety controls, and project test procedure.
--	The recording shall include the commanded operating state, sample rate, duration, microphone identifier, and relevant dock or environmental conditions.
--	The system shall retain either the original recording or an approved processed representation sufficient for later review and model validation.
--	Acoustic preprocessing may include filtering, normalization, time-frequency analysis, spectral features, or learned features produced by the selected model.
--	The system shall reject or flag recordings affected by clipping, missing samples, excessive background noise, dock actuator noise, or an incorrect motor command.
--	Acoustic results shall remain identifiable as a separate sensor output before they are combined with visible or thermal evidence.
-Data Processing and Decision Logic
--	Sensor acquisition, quality checks, preprocessing, model inference, result fusion, storage, and dock communication shall be implemented as separate functional stages.
--	The software shall support replacement of a camera, microphone, thermal module, inference model, or processing platform through documented interfaces or adapters.
--	The pipeline shall resize, normalize, register, or otherwise transform sensor data only according to the requirements of the selected method.
--	If pixel-level or feature-level visible-thermal fusion is used, the system shall include a validated spatial-registration method.
--	The visible-only inspection path shall remain testable independently of the thermal and acoustic paths.
--	The system shall record inference time, end-to-end inspection time, dropped or invalid data, model version, configuration version, and processing-resource utilization.
--	A multimodal result shall identify which sensors contributed to the decision and shall not hide the loss or failure of one sensor.
--	Inspection thresholds shall be established from prototype testing with healthy units and representative defects rather than assumed in advance.
--	Trained models shall be versioned separately from the camera acquisition and dock-control software.
+### Ethical Concerns and Broader implication
+- The chosen design shall
+- The chosen design shall
+- The chosen design shall
 
 <br>
 
 ## Comparitive Analysis of Potential Solutions 
+&nbsp;&nbsp;&nbsp; The project proposal previously described five main subsystems: machine vision via UVC cameras, thermal imaging, acoustics, lighting, and an AI/machine learning pipeline. For the following section, "Comparitive Analysis of Potential Solutions", it details the process of design constraints that revealed pros and cons of different solutions. Moreover, a comparative anaylsis of design methods and evaluation of COTs (Commercial off-the-shelf) devices were explored to meet the needs of Team 6's prototype.
+
+**Team 6's prototype objectives:**
+
+&nbsp;&nbsp;&nbsp; The project is intended to remain portable across future drone models and computing platforms. The first prototype may use a particular embedded computer, camera, or microphone, but the architecture should not require one vendor's product to remain functional. Specifically, each device or subsystem should be reliable, easily deployable, and designed to minimize inaccurate results. Altogether, an overengineered design should be presented for each system to achieve each objective. As for cost and budgeting, each choice should come with a detailed justification, as a total budget was not defined by Valinor Dispatch.
+
+&nbsp;&nbsp;&nbsp; Each subsystem section—machine vision via UVC cameras, thermal imaging, acoustics, lighting, and an AI/machine learning pipeline—covers design, hardware recommendations, calculations, and physical layout where applicable. Content will vary by subsystem, with some requiring fewer topics and others including additional material.
+
+### Machine Vision
+
+### Thermal Imager
+
+### Acoustics 
+
+### Lighting 
+
+### AI/Machine Learning 
 
 
 <br>
