@@ -78,7 +78,7 @@ To evaluate the 0.5 mm feature goal, the camera team will measure pixel scale at
 
 Three pixels across a feature is a sampling hypothesis, not sufficient evidence that an ML model can distinguish a crack from a scratch. Lens focus, motion, noise, lighting, defect contrast, and image downsampling must also be tested. A detector may locate a propeller from a resized frame while a separate full-resolution crop is needed to study tiny damage. [T2][T5][11]
 
-**Camera selection note:** The Sony IMX500 is a research example of a 12.3 MP sensor, but its published output is MIPI D-PHY/SPI [4]; the team will obtain a specific vendor-certified UVC camera SKU, compatible lens and verified full-resolution still-image format before purchasing. An IMX500 camera shall not be budgeted as a plug-and-play USB module without a suitable USB interface.
+**Camera selection note:** The Sony IMX519 is a research example of a 16 MP sensor, but its published output is MIPI D-PHY/SPI [4]; the team will obtain a specific vendor-certified UVC camera SKU, compatible lens and verified full-resolution still-image format before purchasing. An IMX519 camera shall not be budgeted as a plug-and-play USB module without a suitable USB interface.
 
 ### 2.2 Lighting configuration
 
@@ -487,23 +487,23 @@ The budget below combines the team's **published quoted prices** for the thermal
 
 | Subsystem / item | Qty | Unit cost or allowance | Proposed total | Basis and purpose |
 |---|---:|---:|---:|---|
-| RGB: high-resolution UVC cameras, exact SKU TBD | 4 | $165 | **$660** | Planning allowance, not a vendor quote; four exterior views |
-| RGB: camera brackets/adjustable mounts | 4 sets | $10–$20 | **$40–$80** | Allowance for corner alignment and retention |
-| Thermal: FLIR Lepton 3.5 | 1 | $164 | **$164** | GroupGets/FLIR listed candidate price [5] |
-| Thermal: PureThermal 3 board | 1 | $119.99 ≈ $120 | **$120** | GroupGets listed candidate [6] |
-| Lighting: Adafruit 4612 white strip, 1 m | 2 | $11.95 | **$23.90** | Two opposed diffused sources [7] |
-| Lighting: Adafruit 5648 switch board | 2 | $3.95 | **$7.90** | Independent LED switching [12] |
-| Lighting: regulated 12V / 3A supply | 1 | $25–$45 | **$25–$45** | protects required 20 W load |
-| Lighting: diffusers and optical hardware | 1 set | $25–$50 | **$25–$50** | Allowance for glare/contrast trials |
-| Integration: externally powered USB hub | 1 | $50–$80 | **$50–$80** | shared with RGB, thermal and audio |
-| Integration: USB leads, wiring and protection | 1 lot | $30–$60 | **$30–$60** | power and data connections |
-| Lighting: adjustable fixture brackets | 1 lot | $30–$60 | **$30–$60** | opposed positions/angles |
-| Jetson and dock controller | 1 | $175-$250 incremental | **$175-$250** | Confirm installed board and resource availability |
-| **Mandatory prototype subtotal** | | | **$1,350.80–$1,600.80** | Excludes optional modules and existing hardware |
-| Optional acoustic: USB microphone | 1 | $20–$70 | **+$20–$70** | sponsor approval for active diagnostic TBD |
-| Optional evidence storage / backup | 1 | $25–$60 | **+$25–$60** | only if existing storage is insufficient |
-| **Subtotal including both optional allowances** | | | **$$1,395.80–$1,730.80** | No double count of the common USB hub |
-| OpenCV, GStreamer, compatible DeepStream, Darknet, CVAT, Python tooling | — | $0 planned software purchase | **$0** | Validate download, dependency and usage licenses |
+| RGB: high-resolution UVC cameras, exact SKU TBD | 4 | $126 | $504 | Planning allowance, not a vendor quote; four exterior views |
+| RGB: camera brackets/adjustable mounts | 4 sets | $10–$20 | $40–$80 | Allowance for corner alignment and retention |
+| Thermal: FLIR Lepton 3.5 | 1 | $164 | $164 | GroupGets/FLIR listed candidate price [5] |
+| Thermal: PureThermal 3 board | 1 | $119.99 ≈ $120 | $120 | GroupGets listed candidate [6] |
+| Lighting: Adafruit 4612 white strip, 1 m | 2 | $11.95 | $23.90 | Two opposed diffused sources [7] |
+| Lighting: Adafruit 5648 switch board | 2 | $3.95 | $7.90 | Independent LED switching [12] |
+| Lighting: regulated 12V / 3A supply | 1 | $25–$45 | $25–$45 | protects required 20 W load |
+| Lighting: diffusers and optical hardware | 1 set | $25–$50 | $25–$50 | Allowance for glare/contrast trials |
+| Integration: externally powered USB hub | 1 | $50–$80 | $50–$80 | shared with RGB, thermal and audio |
+| Integration: USB leads, wiring and protection | 1 lot | $30–$60 | $30–$60 | power and data connections |
+| Lighting: adjustable fixture brackets | 1 lot | $30–$60 | $30–$60 | opposed positions/angles |
+| Jetson and dock controller | 1 | $175-$250 incremental | $175-$250 | Confirm installed board and resource availability |
+| **Mandatory prototype subtotal** | | | $1,350.80–$1,600.80 | Excludes optional modules and existing hardware |
+| Optional acoustic: USB microphone | 1 | $20–$70 | $20–$70 | sponsor approval for active diagnostic TBD |
+| Optional evidence storage / backup | 1 | $25–$60 | $25–$60 | only if existing storage is insufficient |
+| **Subtotal including both optional allowances** | | | $$1,395.80–$1,730.80 | No double count of the common USB hub |
+| OpenCV, GStreamer, compatible DeepStream, Darknet, CVAT, Python tooling | — | $0 planned software purchase | $0 | Validate download, dependency and usage licenses |
 
 **Planning reserve:** A 15% allowance on the mandatory subtotal is*$119.37–$193.62, giving a mandatory planning request of about $915–$1,485 excluding shipping and tax. With *both* optional items included before the same 15% reserve, the total becomes approximately $967–$1,634. These are range estimates, not committed purchasing totals.
 
@@ -621,8 +621,6 @@ The following questions will be discussed with Valinor to clarify the existing d
 **Additional background retained in team sources:** The team research includes the Darknet/DeepStream-Yolo repositories, Librosa, Anomalib/PatchCore/PaDiM, MVTec AD/LOCO AD, electrical reference pages and UVC camera integration materials. Those options were considered for the design but are not claims of tested performance or purchased equipment. [T1]–[T6]
 
 ## 9. Statement of contributions
-
-**Submission requirement:** Each student must **personally** write or approve their own contribution statement. The proposed entries below are **not signatures or certification** of work completed. No other student's contribution has been invented or signed on their behalf.
 
 > **Member:** [Taylor, Lucas W.] 
 > **Contribution statement** [Researched and developed the AI/ML conceptual design, including YOLOv4 object detection, edge computing on the NVIDIA Jetson Nano, image processing, and sensor fusion. Contributed to the overall system architecture, software integration plan, and conceptual design documentation.]  
