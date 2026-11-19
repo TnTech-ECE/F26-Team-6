@@ -33,7 +33,7 @@ This is an inspection aid, not an aircraft airworthiness certification device. A
 | SYS-11 | The prototype **shall target** an end-to-end inspection result within **5 minutes** of an accepted request, measured from request acceptance through delivery of a complete result message on the installed dock configuration. | Pilot/operator need for timely decisions; preliminary team target awaiting Valinor approval |
 | SYS-12 | The component detector **shall target at least 90% recall** for each required visible component class on held-out dock capture sessions; the test report shall include class counts and false negatives. | Pilot and maintenance need to avoid missed components; preliminary target awaiting validation |
 | SYS-13 | The software **shall** be able to complete a 60-minute continuous-operation test without an application crash or interference with dock control; sensor and storage faults shall be injected during testing. | Preliminary reliability target [3][9] |
-| SYS-14 | The proposed RGB camera arrangement **shall target at least 4 pixels/mm** at designated critical inspection regions, with actual sampling measured at representative positions after mounting. The team **shall not** infer reliable defect recognition from pixel sampling alone; any minimum defect size must be demonstrated with the chosen camera, lens, lighting, processing pipeline, and held-out test images. | Preliminary 16 MP IMX519 camera/ML feasibility goal; requires camera-team and Valinor review |
+| SYS-14 | The proposed RGB camera arrangement **shall target at least 5 pixels/mm** at designated critical inspection regions, with actual sampling measured at representative positions after mounting. The team **shall not** infer reliable defect recognition from pixel sampling alone; any minimum defect size must be demonstrated with the chosen camera, lens, lighting, processing pipeline, and held-out test images. | Preliminary 16 MP IMX519 camera/ML feasibility goal; requires camera-team and Valinor review |
 | SYS-15 | A microphone-based motor diagnostic **shall** remain disabled until the client and team approve a safe test event, a motor/propeller interlock procedure, and repeatable test data. | Acoustic proposal versus dock safety constraint [19][27][3][9] |
 | SYS-16 | The system **shall** maintain a stable reporting interface when sensors or compatible ML models are changed. | Valinor integration and maintenance need backwards-compatible reports; proposed interface requirement |
 | SYS-17 | The assembly **shall** fit within verified enclosure and drone clearances, avoid obstructing landing, doors, cooling, charging, and service access, and use correctly protected power rails. | Packaging/electrical safety constraints [7][12]–[11][32] |
@@ -71,7 +71,7 @@ The dock controller is an interfacing subsystem rather than a person or organiza
 | Drone footprint | Approx. **20 in × 20 in** working estimate; exact dimensions depend on the selected aircraft. | The team shall verify dimensions and camera coverage using the selected prototype drone rather than assuming the estimated footprint is exact. A physical fit check shall be used instead of requiring an official dock CAD model. |
 | Prototype test drone | Valinor currently has no spare drone available to loan. The client offered to help acquire a PX4-compatible drone or drone build in the **5–10 in propeller size class**. | The team shall identify a suitable test platform and confirm its availability before planning drone-specific image collection, thermal measurements, or motor testing. The exact airframe and purchase cost remain TBD. [67] |
 | Edge computer | Valinor identified an **NVIDIA Jetson Orin NX 16 GB** as the existing compute module. | The installed JetPack/L4T image, carrier board, CUDA, TensorRT, DeepStream, storage and available CPU/GPU/memory headroom must still be inventoried. The team shall not assume that upgrading ML libraries is safe for current dock software. [21] |
-| Camera candidate | Four proposed USB 3.0 cameras based on a **16 MP Sony IMX519** sensor, subject to model/lens confirmation; provisional **4 pixels/mm** critical-region sampling goal. | Verify the exact vendor UVC module, supported output formats, field of view, lens, cost, and sampling at actual installed positions before design approval. |
+| Camera candidate | Four proposed USB 3.0 cameras based on a **16 MP Sony IMX519** sensor, subject to model/lens confirmation; provisional **5 pixels/mm** critical-region sampling goal. | Verify the exact vendor UVC module, supported output formats, field of view, lens, cost, and sampling at actual installed positions before design approval. |
 | Thermal candidate | One radiometric Lepton 3.5, 160 × 120 array, approx. 57° horizontal field; PureThermal 3 USB board [5][6][13] | Temperature mode, raw-unit conversion, reference calibration and region coverage require bench verification. |
 | Lighting | Two opposed **1m / 12V / 10W per m** strips, nominal 20W lighting load, independent switched channels [7][12] | A proposed 12V, 3A regulated lighting supply provides 36W nameplate capacity; verify actual current and temperatures. |
 | Acoustic | One central USB microphone; proposed 2–3s buffers and low-RPM spin test [19][27] | Microphone can be prototyped with recorded/bench sounds; no autonomous in-dock motor spin is authorized by this document. |
@@ -98,7 +98,7 @@ Each comparison weighs inspection coverage, ease of integration, risk, developme
 
 The source camera layout uses an approximately 25 in corner-to-center distance and an estimated 59° field-of-view concept [11][32]. Real usable field of view depends on tilt, lens distortion, focus, camera elevation, and the height of the propellers; it shall be checked with the real drone instead of accepted as a final optical calculation. [32][33]
 
-The team is evaluating a 16 MP Sony IMX519-based USB 3.0 camera module and a preliminary sampling goal of **4 pixels/mm** in critical regions, subject to verification of the actual USB module, lens, output resolution and geometry. At 4 pixels/mm, a 0.5 mm feature occupies only 2 pixels, while a feature would need to be 0.75 mm wide to occupy 3 pixels:
+The team is evaluating a 16 MP Sony IMX519-based USB 3.0 camera module and a preliminary sampling goal of **5 pixels/mm** in critical regions, subject to verification of the actual USB module, lens, output resolution and geometry.
 
 \[
 \text{sampled width at 0.5 mm}=4\ \text{pixels/mm}\times0.5\ \text{mm}=2\ \text{pixels}
@@ -137,19 +137,7 @@ The selected lighting is controlled through rated switching hardware. A Jetson l
 
 The Lepton's approximate view at a 12 in stand-off is only part of the drone, so only mapped, visible thermal regions may receive a thermal assessment. The initial target regions are motor housings, the external battery casing area, and exposed charging connections, if visible. Battery-case surface temperature is not equivalent to internal cell temperature. Reflections, emissivity, time since flight, and charging state constrain comparisons. [5][6][13] [60]
 
-### 2.4 Acoustic measurement and safe actuation
-
-| Option | Benefit | Drawback | Selection |
-|---|---|---|---|
-| **USB Audio Class microphone via ALSA** | Linux-native device endpoint and simple removable hardware | Acoustic signal can be weak or confounded in a dock | **Selected research interface**, conditional operation [19][27] |
-| I2S MEMS microphone | Avoids the USB hub | Device-tree/pinmux and physical wiring complexity | Not selected |
-| No audio subsystem | No motor-actuation risk or added cost | May miss a fault detectable only during motion | **Safe baseline inspection** until testing is authorized |
-
-The acoustic subsystem will be developed as a conditional extension of the baseline inspection system. Initial testing will use recorded or controlled bench-generated motor sounds to evaluate signal quality and possible fault-detection methods.
-
-Valinor confirmed that its PX4-based drone communication uses MAVLink and identified `MAV_CMD_ACTUATOR_TEST` as a command intended for bench testing actuators. This provides a possible method for generating repeatable motor test events without developing a separate motor-control protocol. However, the availability of this command does not authorize automatic motor operation inside the dock. Before any motor testing, the team must establish an approved test procedure, confirm support on the selected PX4 platform, and implement appropriate safety precautions. Acoustic testing will remain separate from the mandatory inspection sequence until its safety and performance have been demonstrated. [67]
-
-### 2.5 AI processing, component analysis, and sensor fusion
+### 2.4 AI processing, component analysis, and sensor fusion
 
 | Design choice | Advantages | Challenges | Decision |
 |---|---|---|---|
@@ -162,7 +150,7 @@ Valinor confirmed that its PX4-based drone communication uses MAVLink and identi
 
 YOLOv4 is first used to locate components and generate named regions of interest. Detecting a component is not equivalent to validating that it has no defect. Surface damage classification will be attempted only for defect categories supported by labeled test examples and measured performance. A rules-based decision layer combines visible and thermal observations without claiming that a detection confidence is a probability of safe flight. [3][9]
 
-### 2.6 Weighted software and compute trade studies
+### 2.5 Weighted software and compute trade studies
 
 The AI architecture must balance detection quality with integration effort, available compute, software licensing, energy use, and the need to protect existing dock functions. The following weighted comparisons are preliminary engineering judgments, not measured test results. Final selections will be revisited using sponsor input and benchmark data from the installed Jetson Orin NX 16 GB.
 
@@ -191,7 +179,7 @@ A numerical compute winner is not assigned until the installed board's baseline 
 
 The camera selection requires a separate weighted matrix led by the RGB subsystem owner, with coverage, spatial sampling, USB reliability, cost and installation effort mapped to the system requirements.
 
-### 2.7 Existing automated visual inspection approaches
+### 2.6 Existing automated visual inspection approaches
 
 Published inspection work provides examples of how machine vision can identify damage or support maintenance review. However, reported results on other aircraft, cameras, and defect datasets cannot be assumed to apply to the Valinor dock.
 
@@ -381,7 +369,7 @@ This section decomposes the concept into implementable subsystems. Each subsecti
 
 | Inputs | Outputs | Interfaces / protocols | Design values |
 |---|---|---|---|
-| Camera IDs, mode requests, LED-stable event, calibration configuration, USB power | Native RGB still frames, camera ID, original pixel dimensions, timestamps, quality metadata | UVC/V4L2 through powered USB hub to Jetson; RGB buffers to preprocessing | Four planned USB 3.0 16 MP IMX519-based cameras (exact vendor module/lens to be verified); provisional 4 px/mm sampling target at critical locations; no claimed minimum defect size before testing |
+| Camera IDs, mode requests, LED-stable event, calibration configuration, USB power | Native RGB still frames, camera ID, original pixel dimensions, timestamps, quality metadata | UVC/V4L2 through powered USB hub to Jetson; RGB buffers to preprocessing | Four planned USB 3.0 16 MP IMX519-based cameras (exact vendor module/lens to be verified); provisional 5 px/mm sampling target at critical locations; no claimed minimum defect size before testing |
 
 - **RGB-01:** The system **shall** capture one camera at a time for the initial multi-camera pass and record the camera and lighting mode for each accepted image.
 - **RGB-02:** The camera mounts **shall** provide unobstructed views of a client-approved component coverage map; invisible components **shall** be marked `NOT_VISIBLE` rather than inferred present.
@@ -438,24 +426,7 @@ This section decomposes the concept into implementable subsystems. Each subsecti
 
 **Verification:** Controlled known-temperature target, repeated readings, blocked-lens test, unplugged camera test, ROI footprint demonstration and matched light-on/off trials. Surface temperature must not be described as a direct internal cell or bearing temperature.
 
-### 4.5 Acoustic capture and research classifier (conditional)
-
-**Function:** Capture an identified sound event for possible later mechanical-condition analysis. This subsystem is **not a required pass criterion** for the baseline dock inspection. [19][27][3][9]
-
-| Inputs | Outputs | Interfaces / protocols | Working parameters |
-|---|---|---|---|
-| Approved test-event ID, USB microphone input, timestamp, reference audio | PCM buffer, MFCC/Mel-spectrogram features, optional experimental anomaly score, quality state | USB Audio Class → ALSA → Python audio capture → Librosa/SciPy → optional small classifier | One central microphone proposed; approx. 2–3 s clip and device-supported 16/44.1/48 kHz sampling to be tested |
-
-- **AUD-01:** The baseline system **shall** function and complete required checks with the acoustic stage disabled.
-- **AUD-02:** The microphone interface **shall** enumerate through ALSA and shall log its physical device identity, format, buffer length and sample rate.
-- **AUD-03:** The subsystem **shall** reject clipped, missing, or event-unmatched recordings as invalid rather than claim a diagnostic condition.
-- **AUD-04:** The normal inspection pipeline **shall not** automatically energize or command drone motors. For a separate approved bench-testing procedure, the team may investigate MAVLink's `MAV_CMD_ACTUATOR_TEST` command on a compatible PX4 platform. Any actuator testing **shall** require explicit operator authorization, appropriate propeller and personnel safety precautions, and verification that the test can be stopped safely. In-dock motor actuation shall remain disabled until a separate safety review and client approval are completed.
-- **AUD-05:** Experimental features/classifications **shall** be developed first using controlled recorded/bench events and separately held-out test sessions.
-- **AUD-06:** Any eventual acoustic warning **shall** include the test event and its limitations and **shall not** override confirmed RGB/thermal failure evidence.
-
-**Verification:** USB microphone capture demonstration, noise/clipping assessment, controlled audio dataset and format test; optional motor-excitation phase awaits sponsor safety approval.
-
-### 4.6 RGB calibration, component detection and condition checks
+### 4.5 RGB calibration, component detection and condition checks
 
 **Function:** Convert acquired camera views to consistent coordinates; detect known drone components; distinguish missing/occluded parts from visually abnormal parts. [3][9][11][32]
 
@@ -475,7 +446,7 @@ This section decomposes the concept into implementable subsystems. Each subsecti
 
 **Verification:** Calibrated target, labeled ground-truth dock sessions, intentionally missing mock components where safe, known harmless defect samples, and repeatable inference benchmarking.
 
-### 4.7 Multimodal fusion and diagnostic decision manager
+### 4.6 Multimodal fusion and diagnostic decision manager
 
 **Function:** Map RGB and thermal information to the same named component and combine validated findings into a conservative, explainable inspection result.
 
@@ -509,7 +480,7 @@ flowchart TD
 
 **Verification:** Synthetic test matrices covering all PASS/WARN/FAIL/UNVERIFIED combinations, sensor faults, missing parts, contradictory signals and configuration-version changes.
 
-### 4.8 Data records, model management, and dock interface
+### 4.7 Data records, model management, and dock interface
 
 **Function:** Make the inspection result traceable, reviewable and compatible with current dock software. [3][9]
 
@@ -534,7 +505,7 @@ flowchart TD
 
 **Verification:** Schema test against representative messages, malformed/duplicate-request tests, full-disk test, report review with dock stakeholder and model-version rollback demonstration.
 
-### 4.9 Dataset, calibration, and verification infrastructure
+### 4.8 Dataset, calibration, and verification infrastructure
 
 **Function:** Provide controlled evidence that the chosen design works on the team's actual dock and drone rather than relying on benchmark claims from unrelated data.
 
@@ -618,7 +589,6 @@ The budget below combines the team's **published quoted prices** for the thermal
 | Lighting: adjustable fixture brackets | 1 lot | $30–$60 | $30–$60 | opposed positions/angles |
 | Jetson and dock controller | 1 | $175-$250 incremental | $175-$250 | Confirm installed board and resource availability |
 | **Mandatory prototype subtotal** | | | $1,350.80–$1,600.80 | Excludes optional modules and existing hardware |
-| Optional acoustic: USB microphone | 1 | $20–$70 | $20–$70 | sponsor approval for active diagnostic TBD |
 | Optional evidence storage / backup | 1 | $25–$60 | $25–$60 | only if existing storage is insufficient |
 | **Subtotal including both optional allowances** | | | $$1,395.80–$1,730.80 | No double count of the common USB hub |
 | OpenCV, GStreamer, compatible DeepStream, Darknet, CVAT, Python tooling | — | $0 planned software purchase | $0 | Validate download, dependency and usage licenses |
@@ -639,8 +609,7 @@ The supplied research demonstrates that the team has developed work in RGB/optic
 | Four-camera optics, mounts and USB acquisition | RGB camera research contributor — **Aaron Thongmanivong** | Lens/FOV math, UVC/V4L2, calibration, mechanical mounting | Select verified UVC SKU; coverage and spatial-resolution test |
 | LED layout and supply/switching | Controlled lighting research contributor — **Samuel Oke** | 12V sizing, MOSFET drivers, optical test rig, safe wiring | Build repeatable light fixture, current and contrast trials |
 | Lepton/PureThermal calibration and ROIs | Thermal research contributor — **Michael Lamberth** | Radiometry, USB imaging, emissivity/temperature validation | Thermal capture, reference verification, component mapping |
-| Acoustic proof of concept | Acoustic research contributor — **Aaron Thongmanivong** | ALSA, DSP, recording, safe test planning | Microphone capture and dataset; do not request in-dock motor actuation |
-| Dock electrical/mechanical integration | To be reassigned among remaining team members | Jetson software inventory, hub power, team-created CAD/clearance plans, interlocks and dock IPC; coordinate with Valinor | Check enclosure, supplies, cable routing and existing dock status interface |
+| Dock electrical/mechanical integration | **Whole Team** | Jetson software inventory, hub power, team-created CAD/clearance plans, interlocks and dock IPC; coordinate with Valinor | Check enclosure, supplies, cable routing and existing dock status interface |
 | System verification, Gantt and report review | **Whole team** | Test matrices, traceability, budgeting, Git collaboration | Collect evidence, verify cross-subsystem acceptance and own review signoffs |
 
 **Team allocation rule:** The integration role is unassigned following Benjamin's departure; this change does not erase his historical October contribution statement. Each subsystem lead is responsible for its own detailed-design schematic/code, interfaces, test evidence and section in the final report. System-level testing and integration are shared; the test coordinator checks completeness but does not certify another member's individual contribution. 
@@ -668,7 +637,6 @@ The schedule below is a proposed Fall 2026 detailed-design work plan beginning a
 | Single thermal camera sees only selected areas | Incomplete heat inspection | Annotate real visible ROIs, quantify coverage, revise mandatory thermal list; thermal/client |
 | Thermal raw units/emissivity/charging condition unknown | False alarms or incorrect interpretation | Reference test and condition-specific baseline; thermal owner |
 | USB hub bus/power limitations | Dropouts or false missing-frame results | Test powered hub and bus topology under realistic loads; RGB/integration |
-| Motor-based acoustic test not authorized | Safety and schedule risk | Default audio disabled; develop off-dock recorded/bench proof; acoustic/client |
 | Component list and flight consequences undefined | Cannot finalize required checks/status severity | Client confirms mandatory parts, manual-review rule and dock response; whole team |
 | Image data and pretrained weight licenses | Handoff/use restrictions | Maintain dependency/data register and review licenses; ML/integration |
 
