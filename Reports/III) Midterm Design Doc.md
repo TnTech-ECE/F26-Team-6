@@ -232,8 +232,8 @@ A suitable board will be used to perform image processing, machine-learning, and
 
 | Item                                                        | Estimated Price ($) |
 | :---------------------------------------------------------- | :------------------ |
-| Quad-Camera UVC Array (8MP–12MP CS-Mount)                   | $250                |
-| Thermal Imager (FLIR Lepton 3.5 & PureThermal Board)        | $300                |
+| Quad-Camera UVC Array (8MP–12MP CS-Mount)                   | $503.96                |
+| Thermal Imager (FLIR Lepton 3.5 & PureThermal Board)        | $600                |
 | Edge Compute Unit                                           | $500                |
 | Standard USB Audio Class Microphone                         | $50                 |
 | Powered USB 3.0 Hub (for sequential data orchestration)     | $30                 |
