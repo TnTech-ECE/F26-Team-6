@@ -68,7 +68,8 @@ The dock controller is an interfacing subsystem rather than a person or organiza
 | Subject | Team-provided information | Design interpretation and next action |
 |---|---|---|
 | Dock enclosure | Approx. **30in W × 40in L × 12-16in H** [5][6][13][19][27][11][32] | The horizontal footprint is a working basis, not a measured installation drawing; usable internal height, doors, fixtures, and interference envelope must be measured. |
-| Drone footprint | Approx. **20in × 20in**; height given as 6-8 inches in acoustic/camera draft [19][27][11][32] | Centered horizontal clearances would be 5 in across width and 10 inhes along length before fixtures; the camera draft reverses these labels in one equation, so a measured CAD layout must resolve the geometry. |
+| Drone footprint | Approx. **20 in × 20 in** working estimate; exact dimensions depend on the selected aircraft. | The team shall verify dimensions and camera coverage using the selected prototype drone rather than assuming the estimated footprint is exact. A physical fit check shall be used instead of requiring an official dock CAD model. |
+| Prototype test drone | Valinor currently has no spare drone available to loan. The client offered to help acquire a PX4-compatible drone or drone build in the **5–10 in propeller size class**. | The team shall identify a suitable test platform and confirm its availability before planning drone-specific image collection, thermal measurements, or motor testing. The exact airframe and purchase cost remain TBD. [67] |
 | Edge computer | Valinor identified an **NVIDIA Jetson Orin NX 16 GB** as the existing compute module. | The installed JetPack/L4T image, carrier board, CUDA, TensorRT, DeepStream, storage and available CPU/GPU/memory headroom must still be inventoried. The team shall not assume that upgrading ML libraries is safe for current dock software. [21] |
 | Camera candidate | Four proposed USB 3.0 cameras based on a **16 MP Sony IMX519** sensor, subject to model/lens confirmation; provisional **4 pixels/mm** critical-region sampling goal. | Verify the exact vendor UVC module, supported output formats, field of view, lens, cost, and sampling at actual installed positions before design approval. |
 | Thermal candidate | One radiometric Lepton 3.5, 160 × 120 array, approx. 57° horizontal field; PureThermal 3 USB board [5][6][13] | Temperature mode, raw-unit conversion, reference calibration and region coverage require bench verification. |
@@ -77,7 +78,9 @@ The dock controller is an interfacing subsystem rather than a person or organiza
 
 **Computer compatibility decision gate:** Valinor identified the existing compute module as the **NVIDIA Jetson Orin NX 16 GB**. The original Jetson Nano's DeepStream 6.0.1 / JetPack 4.6.1 combination is not a suitable basis for selecting an Orin NX deployment environment. NVIDIA's current compatibility documentation must be checked against the actual installed JetPack/L4T, CUDA and TensorRT versions before pinning DeepStream and GStreamer dependencies. The team will inventory the dock's existing software and resource use first, then select a compatible tested inference stack without changing sponsor-controlled dock software without approval. [21]
 
-**Valinor interface and data limitations:** Valinor reported that the Orin NX 16 GB is mounted on the backplate where the landing platform retracts. The existing software performs dock-state monitoring, including current-based detection associated with drone presence. Valinor will not provide its proprietary docking source code or dock design files and currently has no labeled PASS/WARN/FAIL drone-image or thermal dataset for this project. The inspection integration shall therefore use an approved black-box interface and data gathered by the team; exact dock power, mounting permissions, and software-service boundaries remain unresolved. Aircraft-specific NDA information shall not be included in public code or documentation. These facts are recorded as client-meeting information, not third-party published specifications.
+**Valinor interface and prototyping constraints:** Valinor identified the existing NVIDIA Jetson Orin NX 16 GB as the intended processing platform, mounted on the dock's backplate. The dock already performs state monitoring, including current-based drone-presence detection. Valinor will not provide proprietary docking source code, and the dock design is actively changing. The team has been advised to use approximate physical dimensions rather than depend on an official CAD model, which could become outdated during development. Camera mounts, lighting fixtures, and sensor placements shall therefore be designed and tested using adjustable prototype arrangements before final installation.
+
+Valinor indicated that the dock has substantial available power capacity and that the team should prioritize effective camera and lighting performance during prototyping. However, the exact available voltages, current limits, connector ratings, and power-distribution connections still require confirmation. The inspection system shall use an approved dock interface and team-collected inspection data. Aircraft-specific information protected by NDA shall not be included in public source code or documentation. [67]
 
 
 ## 2. Comparative analysis of possible solutions
@@ -119,6 +122,8 @@ These are sampling calculations, not proof of crack, chip or scratch recognition
 | Ring/dome illumination | Potentially more even field | Additional space and hardware cost | Fallback if strips cannot meet uniformity requirements |
 | Uncontrolled ambient illumination | No additional hardware | Exposure and defect contrast change with environment | Rejected |
 
+**Client lighting preference:** Valinor confirmed that the existing dock does not have a dedicated inspection lighting solution and that the team is free to select an appropriate configuration. Valinor is willing to adopt a lighting approach that demonstrates suitable inspection performance. The proposed opposed white LED strips will therefore remain the initial prototype configuration, but the team may evaluate other arrangements if testing shows improvements in image quality, glare reduction, or defect visibility. The final lighting configuration shall be selected based on measured performance rather than a predefined client requirement. [67]
+
 The selected lighting is controlled through rated switching hardware. A Jetson logic output does not supply LED load current. The initial two-strip estimate is \(P = 2(10\,\mathrm{W}) = 20\,\mathrm{W}\) and \(I \approx 20/12 = 1.67\,\mathrm{A}\) total. With one independently switched 1 m strip per Adafruit 5648 driver, the estimated 0.83A/channel is below the board's 1.5 A continuous published rating; switching hardware still needs a thermal and connector-rating check. [7][12] [41][42]
 
 ### 2.3 Thermal sensing
@@ -140,7 +145,9 @@ The Lepton's approximate view at a 12 in stand-off is only part of the drone, so
 | I2S MEMS microphone | Avoids the USB hub | Device-tree/pinmux and physical wiring complexity | Not selected |
 | No audio subsystem | No motor-actuation risk or added cost | May miss a fault detectable only during motion | **Safe baseline inspection** until testing is authorized |
 
-The acoustic research proposes short, approximately 2–3s recordings during controlled low-RPM motor tests and feature extraction with Librosa/SciPy followed by a lightweight classifier [19][27]. This differs from the ML draft's explicit decision to **exclude automatic motor spin** [3][9]. The consolidated plan therefore treats audio as Phase B, not a normal inspection prerequisite. A separate, sponsor-approved safe procedure is required before any motor-related test; recorded or laboratory-generated clips can be used for initial software validation. [27][28]
+The acoustic subsystem will be developed as a conditional extension of the baseline inspection system. Initial testing will use recorded or controlled bench-generated motor sounds to evaluate signal quality and possible fault-detection methods.
+
+Valinor confirmed that its PX4-based drone communication uses MAVLink and identified `MAV_CMD_ACTUATOR_TEST` as a command intended for bench testing actuators. This provides a possible method for generating repeatable motor test events without developing a separate motor-control protocol. However, the availability of this command does not authorize automatic motor operation inside the dock. Before any motor testing, the team must establish an approved test procedure, confirm support on the selected PX4 platform, and implement appropriate safety precautions. Acoustic testing will remain separate from the mandatory inspection sequence until its safety and performance have been demonstrated. [67]
 
 ### 2.5 AI processing, component analysis, and sensor fusion
 
@@ -442,7 +449,7 @@ This section decomposes the concept into implementable subsystems. Each subsecti
 - **AUD-01:** The baseline system **shall** function and complete required checks with the acoustic stage disabled.
 - **AUD-02:** The microphone interface **shall** enumerate through ALSA and shall log its physical device identity, format, buffer length and sample rate.
 - **AUD-03:** The subsystem **shall** reject clipped, missing, or event-unmatched recordings as invalid rather than claim a diagnostic condition.
-- **AUD-04:** The software **shall not** energize or command the drone motors. Any low-RPM diagnostic needs a separate approved controller procedure and safety analysis before it can become a production step.
+- **AUD-04:** The normal inspection pipeline **shall not** automatically energize or command drone motors. For a separate approved bench-testing procedure, the team may investigate MAVLink's `MAV_CMD_ACTUATOR_TEST` command on a compatible PX4 platform. Any actuator testing **shall** require explicit operator authorization, appropriate propeller and personnel safety precautions, and verification that the test can be stopped safely. In-dock motor actuation shall remain disabled until a separate safety review and client approval are completed.
 - **AUD-05:** Experimental features/classifications **shall** be developed first using controlled recorded/bench events and separately held-out test sessions.
 - **AUD-06:** Any eventual acoustic warning **shall** include the test event and its limitations and **shall not** override confirmed RGB/thermal failure evidence.
 
@@ -617,6 +624,8 @@ The budget below combines the team's **published quoted prices** for the thermal
 | OpenCV, GStreamer, compatible DeepStream, Darknet, CVAT, Python tooling | — | $0 planned software purchase | $0 | Validate download, dependency and usage licenses |
 
 **Planning reserve:** A 15% allowance on the mandatory subtotal is*$119.37–$193.62, giving a mandatory planning request of about $915–$1,485 excluding shipping and tax. With *both* optional items included before the same 15% reserve, the total becomes approximately $967–$1,634. These are range estimates, not committed purchasing totals.
+
+**Client-provided resources and prototype acquisition:** Valinor indicated that power consumption is not currently a major limiting factor for the prototype and that the team may select camera and lighting hardware based primarily on demonstrated inspection performance. Exact dock power-distribution specifications still require confirmation. Valinor also confirmed that no spare test drone is currently available, but offered to assist with acquiring a PX4-compatible drone or build using approximately 5–10 in propellers. The cost of this test platform is not included in the current component subtotal and will be determined once a suitable model is selected. The final purchase request shall be reviewed with Valinor before ordering. [67]
 
 **Cost reduction order:** Use existing development computers, borrow test targets/calibration gear, prototype lighting fixtures before buying additional sources, and retain a single thermal camera unless actual coverage tests justify another. A second lighting mode, a second thermal view, or replacement edge compute are **not in the mandatory budget**.
 
@@ -797,6 +806,8 @@ The numbered references below retain the original conceptual design sources [1]�
 [63] ISO 17359:2018 (acoustic condition-monitoring background; as listed in acoustic research; online source not supplied).
 
 [64] D. B. Rawat, C. Bajracharya, and G. Yan, "Edge AI-Enabled Anomaly Detection in Autonomous Systems via Multi-Modal Sensing," IEEE Internet of Things Journal, 2022 (as cited in acoustic research; bibliographic details not independently verified).
+
+[67] Valinor Dispatch, "Follow-up on power availability, dock dimensions, prototype drone acquisition, lighting, and MAVLink motor control," client email correspondence, 2026. Internal project communication.
 
 ### 7.2 AI-assistance attribution
 
