@@ -344,8 +344,6 @@ This is an inspection aid, not an aircraft airworthiness certification device. A
 
 | ID | System-level **shall** statement | Design basis |
 |---|---|---|
-| <span style="white-space: nowrap;">SYS-01</span> | The system **shall** begin an inspection only after the dock controller confirms a secured, non-operating drone and an inspection-permitted state. | Safety/operational requirement; safe-state signal supplied through the baseline dock interface [3][9][5][6][13] |
-| SYS-02 | The system **shall** obtain RGB views of every designated inspectable exterior component using the installed four-camera quadrant arrangement and shall identify any required component that cannot be observed. | Camera and ML baseline; the mandatory component list is fixed in Section 1.3 [3][9][11][32] |
 | SYS-03 | The system **shall** acquire usable thermal measurements from designated visible surface regions before reporting their thermal status. | Thermal team concept; applicable regions depend on validated geometry [5][6][13] |
 | SYS-04 | The system **shall** coordinate lighting and capture so accepted RGB images are taken under a known lighting mode with stable exposure. | Lighting/camera repeatability [7][12][11][32] |
 | SYS-05 | The system **shall** run the primary inspection without requiring continuous internet access. | Edge-processing design objective [3][9] |
