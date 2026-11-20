@@ -346,7 +346,7 @@ Note: References [10] and [11] are official standard listings; full-text access 
 
 ## 1. Introduction and fully formulated problem
 
-Valinor's Dispatch dock houses a drone between flights. A drone may return with a missing or damaged propeller, surface damage, loose or missing hardware, or an unusually warm component. A conventional camera cannot directly measure surface temperature, and a thermal camera cannot resolve all of the small visible features. The proposed project adds a coordinated inspection system inside the dock to gather visible and thermal measurements, evaluate the components that can actually be observed, and provide a documented maintenance-oriented result. [3][5][7][9][11] [46]
+Valinor's Dispatch dock houses a drone between flights. A drone may return with a missing or damaged propeller, surface damage, loose or missing hardware, or an unusually warm component. A conventional camera cannot directly measure surface temperature, and a thermal camera cannot resolve all of the small visible features. The proposed project adds a coordinated inspection system inside the dock to gather visible and thermal measurements, evaluate the components that can actually be observed, and provide a documented maintenance-oriented result. [3][5][7][9][11] [41]
 
 The selected concept uses four corner-mounted USB 3.0 UVC cameras based on the 16 MP Sony IMX519 sensor, controllable white LED lighting, one FLIR Lepton 3.5 with a PureThermal 3 interface, and the existing NVIDIA Jetson Orin NX 16 GB computing module. The primary processing order is dock authorization → thermal capture with visible lights off → controlled-light RGB capture → image-quality checks → component and thermal measurements → decision-level fusion → report and log. The dock controller, rather than the AI model, remains responsible for flight permission, charging controls, and safety interlocks. [3][5][7][9][11][19]
 
@@ -359,11 +359,11 @@ This is an inspection aid, not an aircraft airworthiness certification device. A
 | ID | System-level **shall** statement | Origin and status |
 |---|---|---|
 | <span style="white-space: nowrap;">SYS-01</span> | The system **shall** begin an inspection only after the dock controller confirms a secured, non-operating drone and an inspection-permitted state. | Safety/operational constraint; proposed, client confirmation needed [3][9][5][6][13] |
-| SYS-02 | The system **shall** obtain RGB views of every designated inspectable exterior component using the installed four-camera quadrant arrangement and shall identify any required component that cannot be observed. | Camera and ML team concept; final coverage list TBD [3][9][11][32] |
+| SYS-02 | The system **shall** obtain RGB views of every designated inspectable exterior component using the installed four-camera quadrant arrangement and shall identify any required component that cannot be observed. | Camera and ML team concept; final coverage list TBD [3][9][11][28] |
 | SYS-03 | The system **shall** acquire usable thermal measurements from designated visible surface regions before reporting their thermal status. | Thermal team concept; applicable regions depend on validated geometry [5][6][13] |
-| SYS-04 | The system **shall** coordinate lighting and capture so accepted RGB images are taken under a known lighting mode with stable exposure. | Lighting/camera repeatability [7][12][11][32] |
+| SYS-04 | The system **shall** coordinate lighting and capture so accepted RGB images are taken under a known lighting mode with stable exposure. | Lighting/camera repeatability [7][12][11][28] |
 | <span style="white-space: nowrap;">SYS-01</span> | The system **shall** begin an inspection only after the dock controller confirms a secured, non-operating drone and an inspection-permitted state. | Safety/operational constraint; proposed, client confirmation needed [3][9][5][6][13] |
-| SYS-02 | The system **shall** obtain RGB views of every designated inspectable exterior component using the installed camera arrangement and shall identify any required component that cannot be observed. | Camera and ML team concept; final coverage list TBD [3][9][11][32] |
+| SYS-02 | The system **shall** obtain RGB views of every designated inspectable exterior component using the installed camera arrangement and shall identify any required component that cannot be observed. | Camera and ML team concept; final coverage list TBD [3][9][11][28] |
 | SYS-05 | The system **shall** run the primary inspection without requiring continuous internet access. | Edge-processing design objective [3][9] |
 | SYS-06 | The system **shall** provide per-component and overall `PASS`, `WARN`, `FAIL`, or `UNVERIFIED` results with machine-readable reason codes. | Pilot/operator and maintenance requirement; adopted team reporting contract |
 | SYS-07 | The system **shall not** issue an overall `PASS` if any mandatory check is invalid, missing, or unverified. | Safety requirement; adopted conservative status policy |
@@ -375,8 +375,8 @@ This is an inspection aid, not an aircraft airworthiness certification device. A
 | SYS-13 | The software **shall** be able to complete a 60-minute continuous-operation test without an application crash or interference with dock control; sensor and storage faults shall be injected during testing. | Reliability acceptance target [3][9] |
 | SYS-14 | The adopted RGB camera arrangement **shall target at least 5 pixels/mm** across each camera's assigned near quadrant (out to a maximum effective working distance of **28.77 in / 730.8 mm**) to resolve a **1.0 mm** target defect feature size across **5 pixels**, with actual sampling measured at representative positions after mounting. The team **shall not** infer reliable defect recognition from pixel sampling alone; any minimum defect size must be demonstrated with the chosen camera, lens, lighting, processing pipeline, and held-out test images. | Adopted optics sampling design target; physical performance requires measurement |
 | SYS-16 | The system **shall** maintain a stable reporting interface when sensors or compatible ML models are changed. | Versioned interface baseline and backwards-compatibility requirement |
-| SYS-17 | The assembly **shall** fit within verified enclosure and drone clearances, avoid obstructing landing, doors, cooling, charging, and service access, and use correctly protected power rails (including a **≥ 20% power margin** on the USB 3.0 hub supply). | Packaging/electrical safety constraints [7][12][11][32] |
-| SYS-18 | The team **shall** document applicable component, firmware, library, dataset, and pretrained-weight licenses before transferring the prototype to the sponsor. | Professional and intellectual-property constraint [3][9][11][32] |
+| SYS-17 | The assembly **shall** fit within verified enclosure and drone clearances, avoid obstructing landing, doors, cooling, charging, and service access, and use correctly protected power rails (including a **≥ 20% power margin** on the USB 3.0 hub supply). | Packaging/electrical safety constraints [7][12][11][28] |
+| SYS-18 | The team **shall** document applicable component, firmware, library, dataset, and pretrained-weight licenses before transferring the prototype to the sponsor. | Professional and intellectual-property constraint [3][9][11][28] |
 | SYS-19 | The inspection pipeline **shall target a seeded-fault false-`PASS` rate of no more than 5%**, reported with fault counts and a one-sided 95% confidence bound on independent held-out trials. | Adopted seeded-fault acceptance target for prototype evaluation |
 | SYS-20 | The evaluation report **shall** separately record component-detection precision, recall, mAP, false negatives by category, inference latency, and total inspection time under documented camera, lighting, dataset, and Jetson operating conditions. | Adopted evaluation requirement |
 | SYS-21 | For every claimed visual defect class, the team **shall** document the smallest demonstrated observable feature size, tested view locations, camera settings, image-processing conditions, and held-out detection performance. | Adopted evaluation requirement |
@@ -406,21 +406,21 @@ The dock controller is an interfacing subsystem rather than a person or organiza
 
 | Subject | Team-provided information | Design interpretation and next action |
 |---|---|---|
-| Dock enclosure | **30 in W × 40 in L × 14 in H** usable planning envelope, selected from the client's approximate **12–16 in** height range [5][6][13][11][32] | The team shall use the 14 in nominal envelope for fixture design and perform a clearance fit-check before installation; no proprietary dock CAD is required. |
-| Prototype airframe | **PX4-compatible quadrotor; 7 in propellers; ≤20 in × 20 in** plan-view inspection envelope; top-accessible battery casing | This single airframe geometry defines the inspection regions and camera coverage. The team assumes a test unit will be sourced with Valinor's assistance and furnished without a charge to the team's equipment budget; this is a purchasing assumption, not a confirmed client commitment. [67] |
+| Dock enclosure | **30 in W × 40 in L × 14 in H** usable planning envelope, selected from the client's approximate **12–16 in** height range [5][6][13][11][28] | The team shall use the 14 in nominal envelope for fixture design and perform a clearance fit-check before installation; no proprietary dock CAD is required. |
+| Prototype airframe | **PX4-compatible quadrotor; 7 in propellers; ≤20 in × 20 in** plan-view inspection envelope; top-accessible battery casing | This single airframe geometry defines the inspection regions and camera coverage. The team assumes a test unit will be sourced with Valinor's assistance and furnished without a charge to the team's equipment budget; this is a purchasing assumption, not a confirmed client commitment. [57] |
 | Mandatory RGB regions | **Four propellers, four motor housings, four arms, upper fuselage, upper battery casing — 14 named positions** | The test configuration maps every required position to a camera quadrant; landing gear, individual fasteners, and fine cracks/chips are nonmandatory research observations until separately validated. |
 | Mandatory thermal region | **One visible top battery-housing region**, captured with the dock in a non-charging, post-flight inspection state | The single Lepton is not required to image every motor. Additional visible thermal regions may be logged as supplemental, but an invalid mandatory battery ROI prevents `PASS`. |
-| Edge computer | Existing **NVIDIA Jetson Orin NX 16 GB**, on the dock backplate; no additional compute purchase | The prototype software baseline is **JetPack 6.1 + DeepStream 7.1**, with the matching CUDA/TensorRT components and a separate inspection service. This is the planned runtime assumption, not a report of the currently installed image; a compatibility check remains a test. [21] |
-| RGB hardware | Four **16 MP Sony IMX519 USB 3.0 Type-A UVC** units (`4656 × 3496`, `65°` HFOV × `51°` VFOV, focus `10 cm–∞`) at **3.5 in** nominal height above drone plane | Camera selection and quadrant assignment are fixed; the team shall verify vendor SKU, native YUY2 mode, USB throughput, physical field of view, and `5 px/mm` sampling with installed hardware. |
+| Edge computer | Existing **NVIDIA Jetson Orin NX 16 GB**, mounted on the dock backplate; no additional compute purchase | The selected prototype software baseline is **JetPack 6.1 + DeepStream 7.1**, with the CUDA and TensorRT versions supplied through the compatible NVIDIA software stack. The inspection service shall operate separately from proprietary dock-control software. This baseline is a project design assumption, not confirmation of the currently installed software. The team shall verify installed versions, available memory, GPU utilization, and dock-control timing before deployment. [9][21] |
+| RGB hardware | Four **Arducam B0471 16 MP Sony IMX519 USB 3.0 UVC cameras**, with `4656 × 3496` native resolution, `65°` horizontal and `51°` vertical field of view, and motorized focus | The selected camera uses a USB-C connector and shall connect to the powered USB 3.0 Type-A hub through a compatible USB-C-to-Type-A USB 3.0 data cable. The manufacturer lists full-resolution YUY2 capture at 8 fps. The team shall verify the delivered SKU, camera focus, USB bandwidth, and `5 px/mm` sampling target using installed hardware. [47] |
 | Thermal hardware | One FLIR Lepton 3.5 (`160 × 120`, ~`57°` HFOV) and PureThermal 3 USB adapter | A top-oriented mount and 12 in nominal stand-off target the designated battery-housing region. Radiometric mode, unit scale, and emissivity require calibration before results are considered valid. [5][6][13] |
-| Lighting | Two opposed **1 m, 12 V, 10 W/m** diffused white strips with independent switching | The lighting branch uses a 12 V/3 A rated supply; measured current, glare, and thermal loading shall be verified. [7][12] |
-| Available auxiliary power | One protected **12 V/5 A (60 W)** dock auxiliary feed for inspection peripherals; Jetson remains on its existing supply | A 12 V/3 A LED branch and an isolated **5 V/4 A** hub supply/converter share the assumed feed; the hub has more than 20% power margin over the approximate 7 W sensor load. Correct rail capacity and connectors are verified before energizing hardware. |
+| Lighting | Two opposed **1 m, 12 V, 10 W/m** diffused white LED strips with independent switching | The combined nominal lighting load is **20 W**, or approximately **1.67 A at 12 V**. A regulated 12 V/3 A lighting branch supplies both strips through separately rated switching devices. Each strip draws approximately 0.83 A under the nominal design assumption. Actual current, connector ratings, switching behavior, glare, and thermal loading shall be tested. [7][12] |
+| Available auxiliary power | One protected **12 V/5 A (60 W)** dock auxiliary feed dedicated to inspection peripherals; the Jetson remains powered by the dock's existing supply | The assumed 60 W feed supports the **20 W LED load** and a separate **12 V-to-5 V, 4 A-rated converter** for the powered USB hub. The converter provides up to 20 W output capacity. Four cameras require approximately 5.92 W at the manufacturer's listed maximum, with an additional allowance for the PureThermal interface and hub overhead. Branch ratings are maximum capacities, not simultaneous expected consumption. Protection, converter efficiency, cable ratings, and available dock power shall be verified before installation. [7][12][47] |
 | Dock data interface | **Authenticated loopback HTTP/JSON** on `127.0.0.1:8765`, with a sponsor-side caller/authorization adapter | The team develops the inspection service and mock dock adapter without receiving proprietary dock code; the integration boundary requires only an externally implemented request/heartbeat client. |
 | Evidence storage | **64 GB available local allocation**, 20 inspections/day, **25 MB retained evidence/inspection**, **30-day retention** | Expected retained evidence is ~15 GB per month; reserve additional space for indexes, logs, software, and fault recovery. Full-storage conditions prevent a false `PASS`. |
 
 **Valinor interface and prototyping constraints:** Valinor identified the existing NVIDIA Jetson Orin NX 16 GB as the intended processing platform, mounted on the dock's backplate. The dock already performs state monitoring, including current-based drone-presence detection. Valinor will not provide proprietary docking source code, and the dock design is actively changing. The team has been advised to use approximate physical dimensions rather than depend on an official CAD model, which could become outdated during development. Camera mounts, lighting fixtures, and sensor placements shall therefore be designed and tested using adjustable prototype arrangements before final installation.
 
-Valinor indicated that the dock has substantial available power capacity and that the team should prioritize effective camera and lighting performance during prototyping. However, the exact available voltages, current limits, connector ratings, and power-distribution connections still require confirmation. The inspection system shall use an approved dock interface and team-collected inspection data. Aircraft-specific information protected by NDA shall not be included in public source code or documentation. [67]
+Valinor indicated that the dock has substantial available power capacity and that the team should prioritize effective camera and lighting performance during prototyping. However, the exact available voltages, current limits, connector ratings, and power-distribution connections still require confirmation. The inspection system shall use an approved dock interface and team-collected inspection data. Aircraft-specific information protected by NDA shall not be included in public source code or documentation. [57]
 
 
 ## 2. Comparative analysis of possible solutions
@@ -431,7 +431,7 @@ Each comparison weighs inspection coverage, ease of integration, risk, developme
 
 | Option | Benefits | Limitations | Selection |
 |---|---|---|---|
-| **Four caddy-corner UVC cameras** | Multiple perspectives; shorter occluded regions; standard Linux V4L2/USB handling | Four mounts/cables, shared USB loading, cost, focus and overlap validation | **Selected prototype layout** [11][32] |
+| **Four caddy-corner UVC cameras** | Multiple perspectives; shorter occluded regions; standard Linux V4L2/USB handling | Four mounts/cables, shared USB loading, cost, focus and overlap validation | **Selected prototype layout** [11][28] |
 | Two opposite wall cameras | Fewer sensors and simpler cabling | Greater hidden areas; short working distance can require wide-angle optics | Not selected for initial full component survey |
 | One overhead camera | Minimal interface complexity | Propeller undersides, sidewalls, motor housings may be blocked | Not sufficient alone |
 | CSI/MIPI camera set | Dedicated camera interface can reduce USB dependence | Connector/driver integration and wiring constraints | Retained as fallback if UVC testing fails |
@@ -439,7 +439,7 @@ Each comparison weighs inspection coverage, ease of integration, risk, developme
 **Single-Quadrant Coverage & Overlap Geometry:** Inside the $30"\text{ W} \times 40"\text{ L}$ enclosure, a centered $20" \times 20"$ drone sits $25.00\text{ in}$ ($635.0\text{ mm}$) diagonally from each corner ($\sqrt{20^2 + 15^2} = 25\text{ in}$), with its nearest motor/propeller corner approximately $11\text{ in}$ away. Each of the four corner cameras is assigned to inspect **one singular quadrant** of the drone—extending from its near corner out to the drone's centerlines—with intentional overlap at the center of the drone so no blind spots occur if the aircraft lands slightly off-center:
 
 * **Minimum Quadrant Angle vs. Overengineered Overlap Lens:** Framing just the two nearest quadrant centerlines (`(20", 5")` and `(10", 15")` from a box corner) requires a bare minimum angle of $\theta_{\min} = 90^\circ - \tan^{-1}(5/20) - \tan^{-1}(10/15) \approx 42.3^\circ$. By selecting the **16 MP Sony IMX519 USB 3.0 Type-A UVC** module (`4656(H) × 3496(V)`, `4.28 mm` EFL, `F1.75`, programmable focus `10 cm–∞`) with a **`65°` HFOV (`51°` VFOV)**, each camera covers `~819 mm` (`~32.26 in`) horizontally at the drone center—providing roughly **`9 in` (`~230 mm`) of redundant overlap** across the drone's centerlines. Although the `65°` cone extends optically past the center into the opposite half of the enclosure, high-resolution inspection is partitioned by quadrant so the opposite corner camera covers the far quadrant at close range.
-* **Elevated Upper-Corner Mounting (`3–4 in` Above Drone):** Mounting the cameras near the top of the enclosure—**3 to 4 in above the drone's upper plane** and pitched downward at **`~14°–18°`** toward each quadrant's center—provides an oblique top-down view of the upper propeller surfaces, motor bells, and top fasteners while adding less than `0.35 in` to the `25.00 in` horizontal distance to the drone center (`25.18 in` slant at `3 in` elevation; **`25.32 in` / `643.1 mm` slant** at `4 in` elevation). Real usable field of view and vertical clearance on the nearest landing gear (`~11.40 in` slant distance) depend on tilt, lens distortion, and exact internal dock height (`12–16 in`), and shall be verified with the physical drone. [11][32][33]
+* **Elevated Upper-Corner Mounting (`3–4 in` Above Drone):** Mounting the cameras near the top of the enclosure—**3 to 4 in above the drone's upper plane** and pitched downward at **`~14°–18°`** toward each quadrant's center—provides an oblique top-down view of the upper propeller surfaces, motor bells, and top fasteners while adding less than `0.35 in` to the `25.00 in` horizontal distance to the drone center (`25.18 in` slant at `3 in` elevation; **`25.32 in` / `643.1 mm` slant** at `4 in` elevation). Real usable field of view and vertical clearance on the nearest landing gear (`~11.40 in` slant distance) depend on tilt, lens distortion, and exact internal dock height (`12–16 in`), and shall be verified with the physical drone. [11][28][27]
 
 **Spatial Sampling & Maximum `5 pixels/mm` Reach (`1.0 mm` Main Feature Size):** Using the horizontal field-of-view relation $\text{Physical FOV (mm)} = 2 \times \text{WD} \times \tan(\theta_H / 2)$ with `4656` horizontal pixels and $\theta_H = 65^\circ$, the maximum working distance before pixel density drops below **`5 pixels/mm`** is:
 
@@ -473,9 +473,9 @@ These are sampling calculations, not proof of crack, chip, or scratch recognitio
 | Ring/dome illumination | Potentially more even field | Additional space and hardware cost | Fallback if strips cannot meet uniformity requirements |
 | Uncontrolled ambient illumination | No additional hardware | Exposure and defect contrast change with environment | Rejected |
 
-**Client lighting preference and team selection:** Valinor confirmed that the dock has no dedicated inspection lighting and left the choice to the team. The **two opposed, diffused white 1 m LED strips** are therefore the adopted prototype lighting configuration. Other arrangements may be compared in research but are not part of the mandatory hardware baseline without a design revision. [67]
+**Client lighting preference and team selection:** Valinor confirmed that the dock has no dedicated inspection lighting and left the choice to the team. The **two opposed, diffused white 1 m LED strips** are therefore the adopted prototype lighting configuration. Other arrangements may be compared in research but are not part of the mandatory hardware baseline without a design revision. [57]
 
-The selected lighting is controlled through rated switching hardware. A Jetson logic output does not supply LED load current. The two-strip estimate is $P = 2(10\,\mathrm{W}) = 20\,\mathrm{W}$ and $I \approx 20/12 = 1.67\,\mathrm{A}$ total. With one independently switched 1 m strip per Adafruit 5648 driver, the estimated 0.83A/channel is below the board's 1.5 A continuous published rating; switching hardware still needs a thermal and connector-rating check. [7][12][41][42]
+The selected lighting is controlled through rated switching hardware. A Jetson logic output does not supply LED load current. The two-strip estimate is $P = 2(10\,\mathrm{W}) = 20\,\mathrm{W}$ and $I \approx 20/12 = 1.67\,\mathrm{A}$ total. With one independently switched 1 m strip per Adafruit 5648 driver, the estimated 0.83A/channel is below the board's 1.5 A continuous published rating; switching hardware still needs a thermal and connector-rating check. [7][12][36][37]
 
 ### 2.3 Thermal sensing
 
@@ -486,7 +486,7 @@ The selected lighting is controlled through rated switching hardware. A Jetson l
 | Several thermal cameras | Better coverage of multiple components | Significantly higher cost and calibration burden | Consider only after single-camera coverage mapping |
 | RGB-only temperature inference | Lower cost | RGB intensities do not provide actual component temperature | Rejected |
 
-The Lepton's approximate view at a 12 in stand-off is only part of the drone, so only mapped, visible thermal regions may receive a thermal assessment. The mandatory region is the exposed upper battery casing on the selected 7 in quadrotor; visible motor housings and charging connections are supplemental regions only. Battery-case surface temperature is not equivalent to internal cell temperature. Reflections, emissivity, time since flight, and charging state constrain comparisons. [5][6][13][60]
+The Lepton's approximate view at a 12 in stand-off is only part of the drone, so only mapped, visible thermal regions may receive a thermal assessment. The mandatory region is the exposed upper battery casing on the selected 7 in quadrotor; visible motor housings and charging connections are supplemental regions only. Battery-case surface temperature is not equivalent to internal cell temperature. Reflections, emissivity, time since flight, and charging state constrain comparisons. [5][6][13][54]
 
 ### 2.4 AI processing, component analysis, and sensor fusion
 
@@ -495,7 +495,7 @@ The Lepton's approximate view at a 12 in stand-off is only part of the drone, so
 | **GStreamer/DeepStream 7.1 + TensorRT + YOLOv4** | GPU-accelerated video handling, inference and component metadata under the JetPack 6.1 design baseline | Requires parser/export validation and resource testing alongside dock functions | **Selected prototype deployment architecture**; other detectors are comparative research, not prerequisites [3][21][22][23] |
 | OpenCV-only pipeline | Quick camera and preprocessing prototype | More custom integration for multi-stage optimized inference | Development/testing support |
 | YOLOv4-tiny | Lower compute and memory pressure | Potential loss of small-object recall | Fallback if full YOLOv4 misses timing/resource limits |
-| Anomalib (PatchCore/PaDiM) on RGB crops | Can explore subtle deviation from healthy appearances | Dataset, deployment, and false alarm work; different runtime path | Stretch goal only [11][32] |
+| Anomalib (PatchCore/PaDiM) on RGB crops | Can explore subtle deviation from healthy appearances | Dataset, deployment, and false alarm work; different runtime path | Stretch goal only [11][28] |
 | **Late (decision-level) RGB/thermal fusion** | No requirement for pixel-identical RGB and thermal tensors; testable reason codes | Requires calibrated region mapping and decision rules | **Selected** [3][9] |
 | Early/feature-level RGB–thermal fusion | Potential richer learned correlations | Strict alignment/training demands and greater integration risk | Not selected initially |
 
@@ -552,7 +552,7 @@ These approaches support studying automated inspection but do not establish the 
 
 ## 3. High-level solution
 
-The inspection manager receives a request through the adopted local HTTP/JSON dock interface, verifies the `safe_to_inspect` authorization, and assigns a unique run ID. The thermal camera captures a frame before visible lighting is energized. The controller then enables the general LED mode and the system records one camera at a time—each capturing its assigned drone quadrant with centerline overlap—with the capture mode, stable-light confirmation, and timestamps attached to accepted frames. Directional-light capture is experimental and is not included in the mandatory five-minute baseline. Quality checks reject blurred, clipped, stale, obstructed, or incorrectly exposed images. [3][9][11][32]
+The inspection manager receives a request through the adopted local HTTP/JSON dock interface, verifies the `safe_to_inspect` authorization, and assigns a unique run ID. The thermal camera captures a frame before visible lighting is energized. The controller then enables the general LED mode and the system records one camera at a time—each capturing its assigned drone quadrant with centerline overlap—with the capture mode, stable-light confirmation, and timestamps attached to accepted frames. Directional-light capture is experimental and is not included in the mandatory five-minute baseline. Quality checks reject blurred, clipped, stale, obstructed, or incorrectly exposed images. [3][9][11][28]
 
 Next, the software undistorts and maps the valid RGB images, runs the component detector, and checks whether mandatory parts are actually observable. The thermal adapter returns valid surface measurements and region identifiers without requiring a full pixel-to-pixel overlay. A decision manager combines component evidence with configuration-controlled severity rules. The result and supporting evidence are saved locally, transmitted to the dock, and displayed using the dock's existing maintenance/status interface. A failure to observe a required area is `UNVERIFIED`, not a successful inspection. The required checks are the 14 RGB component positions and the single battery-housing thermal ROI defined in Section 1.3. [3][9][5][6][13]
 
@@ -588,7 +588,7 @@ flowchart LR
     DC -->|"Status and service prompt"| UI
 ```
 
-**Block boundaries and wiring constraints:** The dock's existing controller has final authority over operational safety. The Jetson controls the lighting only through an approved driver and a controller-authorized inspection state; a safe de-energized state is required on crash, timeout, or aborted inspection. The externally powered USB 3.0 hub consolidates the 5 active USB endpoints (`4 × IMX519` at `~6 W` max total + `1 × PureThermal 3` at `< 1 W`) with a dedicated DC supply maintaining at least a **20% power margin**. The hub's upstream connection, number of true root-bus controllers, and available bandwidth shall be measured; sequential acquisition reduces simultaneous traffic but does not guarantee zero USB contention. The thermal core/USB board may require an independent stabilized power path through the hub. Lighting power and Jetson GPIO shall never be directly tied at incompatible voltage levels. [7][12][11][32]
+**Block boundaries and wiring constraints:** The dock's existing controller has final authority over operational safety. The Jetson controls the lighting only through an approved driver and a controller-authorized inspection state; a safe de-energized state is required on crash, timeout, or aborted inspection. The externally powered USB 3.0 hub consolidates the 5 active USB endpoints (`4 × IMX519` at `~6 W` max total + `1 × PureThermal 3` at `< 1 W`) with a dedicated DC supply maintaining at least a **20% power margin**. The hub's upstream connection, number of true root-bus controllers, and available bandwidth shall be measured; sequential acquisition reduces simultaneous traffic but does not guarantee zero USB contention. The thermal core/USB board may require an independent stabilized power path through the hub. Lighting power and Jetson GPIO shall never be directly tied at incompatible voltage levels. [7][12][11][28]
 
 ### 3.2 Processing decomposition and subsystem data flow
 
@@ -652,7 +652,7 @@ flowchart TD
 | Dock controller/adapter → Jetson | **Authenticated loopback HTTP/JSON** at `127.0.0.1:8765`; `POST /v1/inspections` | `schema_version`, `request_id`, `drone_id`, `safe_to_inspect`, mandatory check set, request time; immediate acknowledgment | Dock-side client/adapter is an assumed sponsor integration interface; team service is implemented without sponsor source code. |
 | Dock controller/adapter → Jetson | `POST /v1/inspection-authorization`, **1 Hz** heartbeat | `request_id`, current `safe_to_inspect`, dock state, monotonic sequence | A lost heartbeat for **2 seconds**, authorization withdrawal, or invalid state aborts the inspection; lighting fails off. |
 | Jetson → dock controller/adapter | `GET /v1/inspections/{request_id}`, HTTP/JSON polling; 1 Hz while pending | `inspection_id`, current phase, overall/per-component result, `reason_codes`, quality, duration and evidence handles | **3-second** request acknowledgment limit; completed result by **300 seconds**; duplicate `request_id` returns the same inspection rather than rerunning. |
-| Four cameras → hub/Jetson | USB 3.0 Type-A UVC, V4L2 `/dev/video*`; native YUY2 preferred (`4656 × 3496` target) | RGB frames, stable device IDs, dimensions, timestamps, focus metadata | Four IMX519 cameras, `65°` HFOV baseline; sequential acquisition; verify supported native format rather than assuming vendor listing guarantees delivery. [11][32] |
+| Four cameras → hub/Jetson | USB 3.0 Type-A UVC, V4L2 `/dev/video*`; native YUY2 preferred (`4656 × 3496` target) | RGB frames, stable device IDs, dimensions, timestamps, focus metadata | Four IMX519 cameras, `65°` HFOV baseline; sequential acquisition; verify supported native format rather than assuming vendor listing guarantees delivery. [11][28] |
 | Thermal module → hub/Jetson | PureThermal 3 USB UVC radiometric pipeline | Raw 16-bit samples where supported, timestamps, thermal units/scale, sensor state | One Lepton 3.5, mandatory upper-battery ROI; fail closed if calibrated temperatures cannot be produced. [5][6][13] |
 | Jetson → LED switches | 3.3 V-compatible GPIO via rated normally-off switch and dock authorization gate | `GENERAL` / `OFF` enable, optional experimental mode | Two independently switched 12 V channels; lost authorization or watchdog power makes lights OFF. [7][12] |
 | Dock aux rail → peripherals | Protected **12 V/5 A** DC feed, 12 V/3 A lighting branch, **5 V/4 A** hub converter | Regulated voltage/current, protected returns, fuse status | Sensor load ~7 W; hub supply ≥20% margin; Jetson uses existing protected supply. |
@@ -835,7 +835,7 @@ This section decomposes the concept into implementable subsystems. Each subsecti
 
 ### 4.2 RGB camera hardware and acquisition
 
-**Function:** Provide four upper-corner component views—each responsible for a singular drone quadrant with centerline overlap (`3–4 in` above the drone's upper plane)—and repeatable high-resolution still capture. [11][32]
+**Function:** Provide four upper-corner component views—each responsible for a singular drone quadrant with centerline overlap (`3–4 in` above the drone's upper plane)—and repeatable high-resolution still capture. [11][28]
 
 | Inputs | Outputs | Interfaces / protocols | Design values |
 |---|---|---|---|
@@ -898,7 +898,7 @@ This section decomposes the concept into implementable subsystems. Each subsecti
 
 ### 4.5 RGB calibration, component detection and condition checks
 
-**Function:** Convert acquired camera views to consistent coordinates; detect known drone components; distinguish missing/occluded parts from visually abnormal parts. [3][9][11][32]
+**Function:** Convert acquired camera views to consistent coordinates; detect known drone components; distinguish missing/occluded parts from visually abnormal parts. [3][9][11][28]
 
 | Inputs | Outputs | Interfaces / protocols | Adopted prototype implementation |
 |---|---|---|---|
@@ -1009,11 +1009,11 @@ The ML verification plan will treat a false `PASS` on a seeded fault as a primar
 
 ### 5.2 Electrical, thermal, and physical safety
 
-A metal enclosure containing USB-powered devices (`~7–11 W` total across the 4 IMX519 cameras and PureThermal 3) and 12V / 20W nominal lighting requires cable restraint, appropriate fusing, supply sizing (`≥ 20%` power margin on the powered USB 3.0 hub), safe separation of loads from logic GPIO, ventilation and temperature checks. All camera brackets, hub mounts, and lighting fixtures must remain outside the drone's landing envelope and be mechanically retained against vibration. IEC 62368-1 is consulted as an electrical/equipment safety reference, not presented as a verified compliance claim. [7][12][11][32][15]
+A metal enclosure containing USB-powered devices (`~7–11 W` total across the 4 IMX519 cameras and PureThermal 3) and 12V / 20W nominal lighting requires cable restraint, appropriate fusing, supply sizing (`≥ 20%` power margin on the powered USB 3.0 hub), safe separation of loads from logic GPIO, ventilation and temperature checks. All camera brackets, hub mounts, and lighting fixtures must remain outside the drone's landing envelope and be mechanically retained against vibration. IEC 62368-1 is consulted as an electrical/equipment safety reference, not presented as a verified compliance claim. [7][12][11][28][15]
 
 ### 5.3 Measurement quality and misleading results
 
-For RGB inspection, ISO 12233:2024 informs camera resolution/spatial-frequency testing (`5 pixels/mm` target out to `28.77 in` for a `1.0 mm` target feature size), while ISO 15739:2023 helps the team frame camera noise/dynamic-range evaluation. For thermal inspection, ISO 18434-1/-2 and ASTM E1933/E1934 inform thermal condition-monitoring practice, interpretation and surface-emissivity considerations. These references shape the requirement to calibrate, document test conditions, and retain uncertainty, rather than authorize a universal temperature alarm. [5][6][13][11][32][16][17]
+For RGB inspection, ISO 12233:2024 informs camera resolution/spatial-frequency testing (`5 pixels/mm` target out to `28.77 in` for a `1.0 mm` target feature size), while ISO 15739:2023 helps the team frame camera noise/dynamic-range evaluation. For thermal inspection, ISO 18434-1/-2 and ASTM E1933/E1934 inform thermal condition-monitoring practice, interpretation and surface-emissivity considerations. These references shape the requirement to calibrate, document test conditions, and retain uncertainty, rather than authorize a universal temperature alarm. [5][6][13][11][28][16][17]
 
 ### 5.4 Cybersecurity, privacy, licensing, and responsible development
 
@@ -1037,7 +1037,7 @@ The thermal owner will separately map its relevant measurement standards to desi
 
 ### 5.5 Effects on the client, environment and cost
 
-A modular, locally processed design avoids requiring continual cloud connectivity and can reduce routine manual screening time, but it adds electronics, energy demand, replaceable camera hardware and maintenance work. Reusing the dock's actual Jetson prevents an unnecessary second compute purchase, provided performance measurements confirm capacity. False alarms could increase maintenance effort, while false negatives could create much more severe safety implications; evaluation must report both. The lighting is on only during image acquisition to reduce wasted energy and unwanted heat. [3][5][7][9][11][32]
+A modular, locally processed design avoids requiring continual cloud connectivity and can reduce routine manual screening time, but it adds electronics, energy demand, replaceable camera hardware and maintenance work. Reusing the dock's actual Jetson prevents an unnecessary second compute purchase, provided performance measurements confirm capacity. False alarms could increase maintenance effort, while false negatives could create much more severe safety implications; evaluation must report both. The lighting is on only during image acquisition to reduce wasted energy and unwanted heat. [3][5][7][9][11][28]
 
 To reduce unnecessary maintenance work, a flagged component will be accompanied by its location, modality, reason code, image or thermal evidence when available, and an explicit `WARN`, `FAIL`, or `UNVERIFIED` explanation. A bounded recapture may resolve a quality failure without creating repeated unexplained alarms; genuine suspected faults will remain available for human review. To reduce privacy impact on people near the dock, cameras should be aimed primarily at the aircraft and interior inspection area, external scene regions should be cropped or masked when practical, and only necessary diagnostic evidence should be retained with role-restricted access. The retained evidence shall follow the adopted 30-day rolling retention policy with restricted service/maintenance access and the 64 GB local storage allocation. These mitigations make maintainability, privacy and operational cost active design criteria alongside detector accuracy and hardware performance.
 
@@ -1045,7 +1045,7 @@ To reduce unnecessary maintenance work, a flagged component will be accompanied 
 
 ### 6.1 Budget proposal and subsystem justification
 
-The budget adopts **four IMX519 UVC cameras, one Lepton 3.5/PureThermal 3, two LED strips and the existing Jetson Orin NX 16 GB**. The Orin NX and dock controller are **existing, sponsor-provided assets with $0 incremental purchase cost** in this budget. The 7 in PX4-compatible test quadrotor is also budgeted at **$0 to the team under the project assumption that Valinor assists in sourcing and furnishing it**; this is a planning assumption, not a statement that the drone has been delivered or funded. Listed camera and integration prices are internal cost allowances, not purchase quotes. All amounts are USD before tax and shipping. [5][6][7][11][12][32][67]
+The budget adopts **four IMX519 UVC cameras, one Lepton 3.5/PureThermal 3, two LED strips and the existing Jetson Orin NX 16 GB**. The Orin NX and dock controller are **existing, sponsor-provided assets with $0 incremental purchase cost** in this budget. The 7 in PX4-compatible test quadrotor is also budgeted at **$0 to the team under the project assumption that Valinor assists in sourcing and furnishing it**; this is a planning assumption, not a statement that the drone has been delivered or funded. Listed camera and integration prices are internal cost allowances, not purchase quotes. All amounts are USD before tax and shipping. [5][6][7][11][12][28][57]
 
 | Subsystem / item | Qty | Unit cost or allowance | Proposed total | Basis and purpose |
 |---|---:|---:|---:|---|
@@ -1061,7 +1061,7 @@ The budget adopts **four IMX519 UVC cameras, one Lepton 3.5/PureThermal 3, two L
 | Integration: USB cables, wiring and protected DC conversion | 1 lot | $30–$60 | $30–$60 | Includes 5 V/4 A hub power conversion allowance |
 | Lighting: adjustable fixture brackets | 1 lot | $30–$60 | $30–$60 | Adjustable opposed lighting mounting |
 | Existing Jetson Orin NX 16 GB / dock controller | 1 existing | $0 incremental | $0 | Shared installed computing platform |
-| PX4-compatible 7 in quadrotor prototype | 1 assumed client-furnished | $0 to team | $0 | Acquired through client support under budget assumption [67] |
+| PX4-compatible 7 in quadrotor prototype | 1 assumed client-furnished | $0 to team | $0 | Acquired through client support under budget assumption [57] |
 | **Mandatory prototype subtotal** | | | **$1,019.80–$1,194.80** | Hardware additions only |
 | Optional storage expansion / backup | 1 | $25–$60 | $25–$60 | Only if the planned local 64 GB allocation cannot be provided |
 | **Subtotal with optional storage** | | | **$1,044.80–$1,254.80** | No duplicate Jetson, drone, or hub purchase |
@@ -1069,13 +1069,13 @@ The budget adopts **four IMX519 UVC cameras, one Lepton 3.5/PureThermal 3, two L
 
 **Planning reserve:** The adopted **15% contingency** on the mandatory hardware subtotal is **$152.97–$179.22**, producing a **mandatory purchase budget of $1,172.77–$1,374.02**. Including optional storage expansion first produces **$1,201.52–$1,443.02** after the same reserve. These are planning estimates, not supplier invoices or approved expenditures.
 
-**Equipment acquisition and power baseline:** The team shall procure the four cameras, thermal hardware, lighting, powered hub and mounting/electrical materials within the above cost bands. The existing Orin NX/dock controller will be reused without purchasing another compute board. The prototype design uses the assumed protected **12 V/5 A auxiliary feed**; the team shall electrically verify the actual dock feed before connection. The prototype airframe is the PX4-compatible 7 in quadrotor assumed to be furnished without a charge to the team's budget. If the supplier quotation or client-furnished equipment differs, the project budget will be formally revised instead of leaving the procurement scope undefined. [67]
+**Equipment acquisition and power baseline:** The team shall procure the four cameras, thermal hardware, lighting, powered hub and mounting/electrical materials within the above cost bands. The existing Orin NX/dock controller will be reused without purchasing another compute board. The prototype design uses the assumed protected **12 V/5 A auxiliary feed**; the team shall electrically verify the actual dock feed before connection. The prototype airframe is the PX4-compatible 7 in quadrotor assumed to be furnished without a charge to the team's budget. If the supplier quotation or client-furnished equipment differs, the project budget will be formally revised instead of leaving the procurement scope undefined. [57]
 
 **Excluded from the mandatory baseline:** A second thermal camera, additional lighting modes, another compute board, and a separate touchscreen. Existing team development computers and available calibration targets are reused wherever practical.
 
 ### 6.2 Division of labor and skills-to-subsystem allocation
 
-The supplied research demonstrates that the team has developed work in RGB/optics and UVC, lighting/electrical design, thermal measurement, and ML/Jetson deployment. These documents demonstrate research ownership but do not establish that each proposed owner has already completed hardware, calibration or software integration skills tests. The team adopts the role assignments below for this design revision; task ownership is independent of Valinor's proprietary software access. [3][5][7][9][11][32]
+The supplied research demonstrates that the team has developed work in RGB/optics and UVC, lighting/electrical design, thermal measurement, and ML/Jetson deployment. These documents demonstrate research ownership but do not establish that each proposed owner has already completed hardware, calibration or software integration skills tests. The team adopts the role assignments below for this design revision; task ownership is independent of Valinor's proprietary software access. [3][5][7][9][11][28]
 
 | Subsystem or deliverable | Assigned lead / responsibility | Skills needed | Main responsibility |
 |---|---|---|---|
@@ -1098,7 +1098,7 @@ The team adopts **November 20–December 4, 2026** for closing detailed-design a
 
 
 <p align="center">
-  <em>Proposed dated project milestones through Capstone II. The chart is a planning schedule and requires team and sponsor confirmation.</em>
+  <em>Proposed dated project milestones through Capstone II. </em>
 </p>
 
 
@@ -1124,7 +1124,7 @@ The team has resolved open sponsor-dependent design questions into definite requ
 
 ### 7.1 Consolidated external technical references from the team research
 
-The numbered references below retain the original conceptual design sources [1]–[19], include the selected review-guide sources [20]–[26], and consolidate the original external sources cited in the camera, controlled-lighting, ML and thermal condensed research. A URL is listed only once where possible. Earlier Jetson Nano and IMX500 sources are retained only as historical background; they do not describe the installed Orin NX 16 GB or the confirmed 16 MP IMX519 USB 3.0 Type-A SKU. Internal team-draft citation placeholders were removed.
+References are numbered consecutively. Repeated entries for the same source have been consolidated; distinct sources on similar topics are retained. Historical Jetson Nano, alternate camera, and alternate software references are included for design comparisons and do not describe the selected installed hardware. Manufacturer documents and project assumptions remain distinct from experimentally verified results.
 
 [1] NIST, [*AI Risk Management Framework Playbook*](https://www.nist.gov/itl/ai-risk-management-framework/nist-ai-rmf-playbook).
 
@@ -1142,7 +1142,7 @@ The numbered references below retain the original conceptual design sources [1]�
 
 [8] NVIDIA, [*DeepStream legacy Jetson/JetPack compatibility table*](https://docs.nvidia.com/metropolis/deepstream-nvaie31/dev-guide/text/DS_Quickstart.html) (original Nano / DeepStream 6.0.1 / JetPack 4.6.1).
 
-[9] NVIDIA, [*DeepStream platform and operating-system compatibility*](https://docs.nvidia.com/metropolis/deepstream/8.0/text/DS_Installation.html) (Orin Nano support in earlier Orin-oriented releases including DeepStream 7.1 / JetPack 6.1).
+[9] NVIDIA, [*DeepStream SDK 7.1 Installation Guide*](https://docs.nvidia.com/metropolis/deepstream/7.1/text/DS_Installation.html). Official installation requirements and supported NVIDIA Jetson platforms, including Jetson Orin NX. Used to establish the selected DeepStream 7.1 deployment baseline.
 
 [10] NVIDIA, [*Jetson Orin Nano Super Developer Kit specifications*](https://www.nvidia.com/en-us/autonomous-machines/embedded-systems/jetson-orin/nano-super-developer-kit/), and [*JetPack 6.2 SDK*](https://developer.nvidia.com/embedded/jetpack-sdk-62).
 
@@ -1166,7 +1166,7 @@ The numbered references below retain the original conceptual design sources [1]�
 
 [20] Electronic Code of Federal Regulations, [*14 CFR § 107.15 — Condition for safe operation*](https://www.ecfr.gov/current/title-14/chapter-I/subchapter-F/part-107/subpart-B/section-107.15), accessed November 2026.
 
-[21] NVIDIA, [*Jetson Orin product family*](https://www.nvidia.com/en-us/autonomous-machines/embedded-systems/jetson-orin/), accessed November 2026; for installation compatibility see [9]. The team adopts JetPack 6.1 / DeepStream 7.1 as a design assumption, not a verified inventory of the installed release.
+[21] NVIDIA, [*JetPack SDK 6.1*](https://developer.nvidia.com/embedded/jetpack-sdk-61); NVIDIA, [*JetPack 6.1 Release Notes*](https://docs.nvidia.com/jetson/archives/jetpack-archived/jetpack-61/release-notes/index.html).
 
 [22] Megvii-BaseDetection, [*YOLOX implementation and Apache-2.0 license*](https://github.com/Megvii-BaseDetection/YOLOX); Ultralytics, [*Licensing*](https://www.ultralytics.com/license), accessed November 2026.
 
@@ -1178,77 +1178,75 @@ The numbered references below retain the original conceptual design sources [1]�
 
 [26] Y. Ishikawa, K. Iwata, and Y. Satoh, [*Event-Camera-Based Defect Detection of High-Speed Rotating Propellers*](https://www.mdpi.com/1424-8220/26/15/4721), *Sensors*, vol. 26, no. 15, article 4721, 2026, doi:10.3390/s26154721.
 
-[29] Edge AI and Vision Alliance, "Unlock Edge AI Potential: Why USB Cameras Are the Future of Vision Solutions," Edge AI and Vision Alliance, Nov. 2023. [Original source](https://www.edge-ai-vision.com/2023/11/unlock-edge-ai-potential-why-usb-cameras-are-the-future-of-vision-solutions/). (From RGB condensed research.)
+[27] Edge AI and Vision Alliance, "Unlock Edge AI Potential: Why USB Cameras Are the Future of Vision Solutions," Edge AI and Vision Alliance, Nov. 2023. [Original source](https://www.edge-ai-vision.com/2023/11/unlock-edge-ai-potential-why-usb-cameras-are-the-future-of-vision-solutions/). (From RGB condensed research.)
 
-[32] Edge AI and Vision Alliance, "What is a UVC Camera, and What are the Different Types of UVC Cameras?," Edge AI and Vision Alliance, Jan. 2024.   Accessed: Sep. 28, 2026. [Original source](https://www.edge-ai-vision.com/2024/01/what-is-a-uvc-camera-and-what-are-the-different-types-of-uvc-cameras/). (From RGB condensed research.)
+[28] Edge AI and Vision Alliance, "What is a UVC Camera, and What are the Different Types of UVC Cameras?," Edge AI and Vision Alliance, Jan. 2024.   Accessed: Sep. 28, 2026. [Original source](https://www.edge-ai-vision.com/2024/01/what-is-a-uvc-camera-and-what-are-the-different-types-of-uvc-cameras/). (From RGB condensed research.)
 
-[33] Edge AI and Vision Alliance, "Unlock Edge AI Potential: Why USB Cameras Are the Future of Vision Solutions," Edge AI and Vision Alliance, Nov. 2023.   Accessed: Sep. 28, 2026. [Original source](https://www.edge-ai-vision.com/2023/11/unlock-edge-ai-potential-why-usb-cameras-are-the-future-of-vision-solutions/). (From RGB condensed research.)
+[29] Edge AI and Vision Alliance, "Choosing Best USB Camera for Edge AI Retail Systems," Edge AI and Vision Alliance, Dec. 2023.   Accessed: Sep. 28, 2026. [Original source](https://www.edge-ai-vision.com/2023/12/choosing-best-usb-camera-for-edge-ai-retail-systems/). (From RGB condensed research.)
 
-[34] Edge AI and Vision Alliance, "Choosing Best USB Camera for Edge AI Retail Systems," Edge AI and Vision Alliance, Dec. 2023.   Accessed: Sep. 28, 2026. [Original source](https://www.edge-ai-vision.com/2023/12/choosing-best-usb-camera-for-edge-ai-retail-systems/). (From RGB condensed research.)
+[30] e-con Systems, "USB 3.0 vs. MIPI CSI-2: Choosing the Right Interface for High-Resolution Embedded Vision Systems," 2023. [Original source](https://www.e-consystems.com/blog/camera/technology-explained/usb-3-0-vs-mipi-csi-2-choosing-the-right-interface-for-high-resolution-embedded-vision-systems/). Accessed September 28, 2026.
 
-[35] e-con Systems, "USB 3.0 vs. MIPI CSI-2: Choosing the Right Interface for High-Resolution Embedded Vision Systems," e-con Systems, 2023.   Accessed: Sep. 28, 2026. [Original source](https://www.e-consystems.com/blog/camera/technology-explained/usb-3-0-vs-mipi-csi-2-choosing-the-right-interface-for-high-resolution-embedded-vision-systems/). (From RGB condensed research.)
+[31] OpenCV, "Camera Calibration and 3D Reconstruction (calib3d)," OpenCV Documentation. [Original source](https://docs.opencv.org/5.0/tutorials/calib3d/camera_calibration/camera_calibration.html). Accessed September 28, 2026.
 
-[36] OpenCV, "Camera Calibration and 3D Reconstruction (calib3d)," OpenCV Documentation.   Accessed: Sep. 28, 2026. [Original source](https://docs.opencv.org/5.0/tutorials/calib3d/camera_calibration/camera_calibration.html). (From RGB condensed research.)
+[32] Intel, "Optimize Inference — OpenVINO Documentation," 2024. [Original source](https://docs.openvino.ai/2026/openvino-workflow/running-inference/optimize-inference.html). Accessed September 28, 2026.
 
-[37] Intel, "Optimize Inference — OpenVINO™ Documentation," Intel Corporation, 2024.   Accessed: Sep. 28, 2026. [Original source](https://docs.openvino.ai/2026/openvino-workflow/running-inference/optimize-inference.html). (From RGB condensed research.)
+[33] Intel, "Anomalib: An Anomaly Detection Library for Deep Learning," GitHub repository, 2024. [Original source](https://github.com/openvinotoolkit/anomalib). Accessed September 28, 2026.
 
-[38] Intel, "Anomalib: An Anomaly Detection Library for Deep Learning," GitHub repository, 2024.   Accessed: Sep. 28, 2026. [Original source](https://github.com/openvinotoolkit/anomalib). (From RGB condensed research.)
+[34] biscolab, "drone-defect-detector: Automated Defect Detection Pipeline Using YOLOv8," GitHub repository, 2024. [Original source](https://github.com/biscolab/drone-defect-detector). Accessed September 28, 2026.
 
-[39] biscolab, "drone-defect-detector: Automated defect detection pipeline using YOLOv8," GitHub repository, 2024.   Accessed: Sep. 28, 2026. [Original source](https://github.com/biscolab/drone-defect-detector). (From RGB condensed research.)
+[35] H. Ramezani, "drone-defect-detection: Structural Surface Defect Classification with Synthetic Data," GitHub repository, 2024. [Original source](https://github.com/HoomanRamezani/drone-defect-detection). Accessed September 28, 2026.
 
-[40] H. Ramezani, "drone-defect-detection: Structural surface defect classification with synthetic data," GitHub repository, 2024.   Accessed: Sep. 28, 2026. [Original source](https://github.com/HoomanRamezani/drone-defect-detection). (From RGB condensed research.)
+[36] Edmund Optics, "Common Illumination Types / Choose the Correct Illumination." [Original source](https://www.edmundoptics.com/knowledge-center/application-notes/illumination/choose-the-correct-illumination/). (From lighting condensed research.)
 
-[41] Lighting: Edmund Optics, Common Illumination Types. [Original source](https://www.edmundoptics.com/knowledge-center/application-notes/illumination/choose-the-correct-illumination/). (From Lighting condensed research.)
+[37] Adafruit, "Ultra Flexible Warm White LED Strip, product 4613." [Original source](https://www.adafruit.com/product/4613). (Alternative lighting source from lighting condensed research.)
 
-[42] Warm strip: Adafruit, Ultra Flexible White LED Strip, product 4613. [Original source](https://www.adafruit.com/product/4613). (From Lighting condensed research.)
+[38] NVIDIA, *Jetson Nano Developer Kit User Guide*, December 2019. [Original source](https://developer.download.nvidia.com/embedded/L4T/r32-3-1_Release_v1.0/Jetson_Nano_Developer_Kit_User_Guide.pdf). Historical hardware reference.
 
-[43] Nano: NVIDIA, Jetson Nano Developer Kit User Guide, December 2019. [Original source](https://developer.download.nvidia.com/embedded/L4T/r32-3-1_Release_v1.0/Jetson_Nano_Developer_Kit_User_Guide.pdf). (From Lighting condensed research.)
+[39] Basler, "Electronic Shutter Types." [Original source](https://docs.baslerweb.com/electronic-shutter-types). (From lighting condensed research.)
 
-[44] Camera timing: Basler, Electronic Shutter Types. [Original source](https://docs.baslerweb.com/electronic-shutter-types). (From Lighting condensed research.)
+[40] Teledyne FLIR, "How Does Emissivity Affect Thermal Imaging?" [Original source](https://www.flir.com/en-asia/discover/professional-tools/how-does-emissivity-affect-thermal-imaging/). (From lighting condensed research.)
 
-[45] Thermal reflections: FLIR, How Does Emissivity Affect Thermal Imaging. [Original source](https://www.flir.com/en-asia/discover/professional-tools/how-does-emissivity-affect-thermal-imaging/). (From Lighting condensed research.)
+[41] NVIDIA, "Jetson Orin Module Specifications and Jetson Orin NX 16 GB Overview." [Original source](https://www.nvidia.com/en-us/autonomous-machines/embedded-systems/). (From ML condensed research.)
 
-[46] NVIDIA, Jetson Orin module specifications and Jetson Orin NX 16GB overview. [Original source](https://www.nvidia.com/en-us/autonomous-machines/embedded-systems/). (From ML condensed research.)
+[42] NVIDIA, "Boost Edge AI Performance with the NVIDIA Jetson Orin NX 16 GB." [Original source](https://developer.nvidia.com/blog/boost-edge-ai-performance-with-the-new-nvidia-jetson-orin-nx-16gb/). (From ML condensed research.)
 
-[47] NVIDIA, Jetson Orin module specifications and Jetson Orin NX 16GB overview. [Original source](https://developer.nvidia.com/blog/boost-edge-ai-performance-with-the-new-nvidia-jetson-orin-nx-16gb/). (From ML condensed research.)
+[43] NVIDIA, "DeepStream Installation and Platform/OS Compatibility Matrix." [Original source](https://docs.nvidia.com/deepstream/text/DS_Installation). (From ML condensed research.)
 
-[48] NVIDIA, DeepStream installation and platform/OS compatibility matrix. [Original source](https://docs.nvidia.com/deepstream/text/DS_Installation). (From ML condensed research.)
+[44] C.-Y. Wang et al., "Scaled-YOLOv4," 2020. [Original source](https://arxiv.org/abs/2011.08036). (From ML condensed research.)
 
-[49] C.-Y. Wang et al., Scaled-YOLOv4, 2020. [Original source](https://arxiv.org/abs/2011.08036). (From ML condensed research.)
+[45] NVIDIA, "JetPack SDK 6.2.3." [Original source](https://developer.nvidia.com/embedded/jetpack-sdk-623). (From ML condensed research.)
 
-[50] NVIDIA, JetPack SDK 6.2.3 and DeepStream SDK support matrix. [Original source](https://developer.nvidia.com/embedded/jetpack-sdk-623). (From ML condensed research.)
+[46] NVIDIA, "DeepStream SDK Collection." [Original source](https://catalog.ngc.nvidia.com/orgs/nvidia/-/collections/deepstream_sdk). (From ML condensed research.)
 
-[51] NVIDIA, JetPack SDK 6.2.3 and DeepStream SDK support matrix. [Original source](https://catalog.ngc.nvidia.com/orgs/nvidia/-/collections/deepstream_sdk). (From ML condensed research.)
+[47] Arducam, [*B0471 16 MP IMX519 USB 3.0 Camera Module Datasheet*](https://www.arducam.com/downloads/datasheet/B0471_16MP_IMX519_USB3.0_Camera_Datasheet.pdf); Arducam, [*16 MP IMX519 USB 3.0 Camera Product Specifications*](https://www.arducam.com/arducam-16mp-imx519-fast-auto-focus-usb-3-0-camera-module-without-enclosure.html).
 
-[52] Arducam, 16 MP Sony IMX519 USB 3.0 UVC camera module specifications. [Original source](https://www.arducam.com/). (From RGB camera research.)
+[48] GroupGets, "FLIR Lepton 3.5 Listing / Thermal Imaging Collection." [Original source](https://groupgets.com/collections/thermal-imaging). (From ML condensed research.)
 
-[53] GroupGets, FLIR Lepton 3.5 listing. [Original source](https://groupgets.com/collections/thermal-imaging). (From ML condensed research.)
+[49] GroupGets, "PureThermal 2 Shielded." [Original source](https://groupgets.com/products/purethermal-2-shielded). Historical alternative, distinct from PureThermal 3. (From ML condensed research.)
 
-[54] GroupGets, PureThermal 2 Shielded. [Original source](https://groupgets.com/products/purethermal-2-shielded). (From ML condensed research.)
+[50] MVTec, "MVTec AD Dataset." [Original source](https://www.mvtec.com/research-teaching/datasets/mvtec-ad). (From ML condensed research.)
 
-[56] MVTec, MVTec AD. [Original source](https://www.mvtec.com/research-teaching/datasets/mvtec-ad). (From ML condensed research.)
+[51] MVTec, "MVTec LOCO AD Dataset." [Original source](https://www.mvtec.com/research-teaching/datasets/mvtec-loco-ad). (From ML condensed research.)
 
-[57] MVTec, MVTec LOCO AD. [Original source](https://www.mvtec.com/research-teaching/datasets/mvtec-loco-ad). (From ML condensed research.)
+[52] M. Batzner et al., "EfficientAD: Accurate Visual Anomaly Detection at Millisecond-Level Latencies," *WACV*, 2024. [Original source](https://openaccess.thecvf.com/content/WACV2024/html/Batzner_EfficientAD_Accurate_Visual_Anomaly_Detection_at_Millisecond-Level_Latencies_WACV_2024_paper.html). (From ML condensed research.)
 
-[58] M. Batzner et al., EfficientAD: Accurate Visual Anomaly Detection at Millisecond-Level Latencies, WACV 2024. [Original source](https://openaccess.thecvf.com/content/WACV2024/html/Batzner_EfficientAD_Accurate_Visual_Anomaly_Detection_at_Millisecond-Level_Latencies_WACV_2024_paper.html). (From ML condensed research.)
+[53] marcoslucianops, "DeepStream-Yolo Compatibility and Configuration Examples," GitHub repository. [Original source](https://github.com/marcoslucianops/DeepStream-Yolo). Third-party code; pin and test a revision compatible with the project software stack. (From ML condensed research.)
 
-[59] marcoslucianops, DeepStream-Yolo compatibility and configuration examples (third-party; pin and test a compatible revision, especially for newer DeepStream versions). [Original source](https://github.com/marcoslucianops/DeepStream-Yolo). (From ML condensed research.)
+[54] Valinor, "Dispatch Specifications." [Original source](https://www.valinor.co/products/dispatch). (From thermal condensed research.)
 
-[60] Valinor, Dispatch specifications. [Original source](https://www.valinor.co/products/dispatch). (From Thermal condensed research.)
+[55] GroupGets, "PureThermal UVC Capture and Radiometry Examples," GitHub repository. [Original source](https://github.com/groupgets/purethermal1-uvc-capture). For FLIR radiometry principles, see [13]. (From thermal condensed research.)
 
-[61] Teledyne FLIR, Radiometry with Lepton; GroupGets, UVC capture and radiometry examples. [Original source](https://github.com/groupgets/purethermal1-uvc-capture). (From Thermal condensed research.)
+[56] GroupGets, "PureThermal Breakout Board." [Original source](https://groupgets.com/products/purethermal-breakout-board). Historical alternative to selected PureThermal 3. (From thermal condensed research.)
 
-[62] GroupGets, PureThermal Breakout Board. [Original source](https://groupgets.com/products/purethermal-breakout-board). (From Thermal condensed research.)
-
-[67] Valinor Dispatch, "Follow-up on power availability, dock dimensions, prototype drone acquisition, lighting, and MAVLink motor control," client email correspondence, 2026. Internal project communication.
+[57] Valinor Dispatch, "Follow-up on power availability, dock dimensions, prototype drone acquisition, lighting, and MAVLink motor control," client email correspondence, 2026. Internal project communication.
 
 ### 7.2 AI-assistance attribution
 
-[65] Google Gemini, AI-assisted technical editing and formatting, 2026 (disclosed by the camera research contributor; not a technical validation source).
+[58] Google Gemini, AI-assisted technical editing and formatting, 2026 (disclosed by the camera research contributor; not a technical validation source).
 
-[66] OpenAI, *ChatGPT (GPT-6)*, assisted in organizing the 2026 conceptual-design revisions, combining research citations, drafting proposed requirement/rebuttal wording, and document editing, November 18, 2026. Not an independent engineering validation source.
+[59] OpenAI, *ChatGPT (GPT-6)*, assisted in organizing the 2026 conceptual-design revisions, combining research citations, drafting proposed requirement/rebuttal wording, and document editing, November 18, 2026. Not an independent engineering validation source.
 
-The team is responsible for confirming the correctness of all specifications, source links, and proposed decisions. Neither AI assistance nor the cited research papers establish tested performance on Valinor's drone or dock.
+The team is responsible for confirming the correctness of all specifications, source links, and proposed decisions. Neither AI assistance nor the cited research papers establish tested performance on Valinor’s drone or dock.
 
 ## 8. Statement of contributions
 
