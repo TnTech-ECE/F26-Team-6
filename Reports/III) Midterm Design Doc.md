@@ -133,8 +133,8 @@ The following specifications define the initial problem boundaries. Numerical li
 ### Safety and Operational Constraints
 -	The inspection system shall not command propeller or motor operation unless the aircraft, enclosure, and dock controls provide an approved safe test condition.
 -	A sensor or model failure shall not be interpreted as a healthy result. Missing or unreliable data shall produce an INSUFFICIENT DATA or equivalent fault state.
--	The inspection result shall support, not replace, manufacturer-required maintenance and human operational authority.
--	The system shall not release a drone for flight solely because one sensing modality reports no anomaly.
+-	For flights under 14 CFR Part 107, the remote pilot in command must check the aircraft system before each flight to determine whether it is safe to operate [18]. The inspection report shall identify the components checked, flag incomplete checks, and provide supporting evidence for the pilot’s assessment. A PASS applies only to the checks performed. The inspection system shall have no authority to release the aircraft for flight.
+- Manufacturer-required maintenance procedures remain in effect.
 -	Stored images, audio, thermal data, identifiers, and maintenance records shall be protected according to the sponsor's access, retention, and cybersecurity requirements.
 ### Procurement and Product-Neutrality Constraints
 -	Final component selection depends on verified availability, lead time, lifecycle status, environmental rating, exact interface support, documentation, and total integration cost.
@@ -143,11 +143,11 @@ The following specifications define the initial problem boundaries. Numerical li
 -	The first prototype may use convenient development hardware, but acceptance criteria shall describe required performance and interfaces rather than a brand name.
 
 ### Standards of Compliance
-| Standard or specification             | Relevance to your subsystem                          | How your team could apply it                                                                                                                                 |
-| ------------------------------------- | ---------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| ISO 12233:2024                        | Camera resolution and spatial-frequency response.    | Test whether the camera and lens preserve enough detail to detect the project's minimum defect size.                                                         |
-| ISO 15739:2023                        | Digital-camera noise and dynamic-range measurements. | Evaluate image quality under the lighting conditions expected inside the docking station.                                                                    |
-| USB-IF UVC / USB Video specifications | Camera-to-compute interface compatibility.           | Document supported video formats, resolutions, transfer modes, and host compatibility. Confirm the exact specification and version supported by each camera. |
+| Standard or specification | Effect on the proposed design |
+| --- | --- |
+| ISO 12233:2024 [10] | Use a resolution chart at the installed working distance to determine which features the camera and lens can resolve in each required region. Use those measurements to set the smallest feature the team will evaluate for detection. |
+| ISO 15739:2023 [11] | Measure image noise under the proposed dock lighting and use the results to select exposure and gain settings for inspection. |
+| USB Video Class 1.5 [7] | For each candidate USB camera, verify that the dock computer can acquire the required image format and resolution through its supported UVC interface. |
 
 ## Survey of Existing Solutions
 Several existing approaches support equipment inspection through manual checks, remote cameras, visual anomaly detection, and thermal imaging. The proposed system will use USB Video Class (UVC) cameras to observe visible damage and a thermal imaging camera to identify abnormal heat signatures.
@@ -299,6 +299,8 @@ Because this is a safety-critical system, the engineering team has a strict ethi
 [16] IEEE, “IEEE 7000-2021 — IEEE Standard Model Process for Addressing Ethical Concerns During System Design.” [Online]. Available: https://standards.ieee.org/standard/7000-2021.html
 
 [17] International Electrotechnical Commission, “IEC 62443-4-1:2018 — Security for Industrial Automation and Control Systems — Part 4-1: Secure Product Development Lifecycle Requirements.” [Online]. Available: https://webstore.iec.ch/
+
+[18] Electronic Code of Federal Regulations, [14 CFR § 107.15, Condition for safe operation.](https://www.ecfr.gov/current/title-14/chapter-I/subchapter-F/part-107/subpart-B/section-107.15)
 
 Note: References [10] and [11] are official standard listings; full-text access may require purchase or Tennessee Tech library access. USB-IF specifications are available through its document library.
 
