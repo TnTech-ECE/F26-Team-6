@@ -50,7 +50,7 @@ The following specifications define the initial problem boundaries. Numerical li
 -	The system shall verify that required lighting channels operate correctly before accepting an image for analysis.
 -	The system shall detect unusable frames caused by blur, obstruction, saturation, insufficient illumination, missing data, or incorrect camera state.
 -	Visible captures shall be synchronized with the inspection sequence so that dock motion, lighting transitions, or thermal capture do not corrupt the measurement.
-- The camera subsystem shall achieve a target image sampling density of **6 pixels/mm** throughout each designated inspection region.
+- The camera subsystem shall achieve a target image sampling density of **5 pixels/mm** throughout each designated inspection region.
 - The camera array shall cover the drone's top surface and four vertical sides, with minimal overlap between adjacent views where practical.
 - The camera subsystem shall support completion of the overall inspection cycle within **10 seconds**.
 ### Thermal Imaging
@@ -107,7 +107,7 @@ The following specifications define the initial problem boundaries. Numerical li
 -	Docking-position variation can change image alignment, focus, reflections and thermal regions. Mechanical repeatability or validated image registration is required.
 -	Ordinary visible-light glass or clear plastic may block long-wave infrared energy and cannot be placed in the thermal optical path unless its transmission has been verified.
 - Camera hardware, including mounts, shall fit within the docking station's **30 x 40-inch footprint** and specified height envelope.
-- Camera fields of view shall be selected to maintain the target sampling density of **6 pixels/mm** while covering their assigned inspection regions.
+- Camera fields of view shall be selected to maintain the target sampling density of **5 pixels/mm** while covering their assigned inspection regions.
 - Adjacent camera views shall minimize overlap where practical without creating unacceptable blind spots.
 - Camera acquisition shall complete within the **10-second inspection-cycle limit**.
 - Combined sensor data transfer shall remain within the measured usable USB bandwidth and available memory capacity.
@@ -182,7 +182,7 @@ Published aircraft inspection studies illustrate two choices for Valinor's dock.
 - The final implementation shall be capable of processing the camera stream continuously for at least one hour without software failure.
 - The software shall identify and log dropped or invalid frames rather than silently failing.
 - The RGB-only detector shall remain usable independently of the thermal pipeline.
-- The camera subsystem shall demonstrate at least **6 pixels/mm** throughout designated inspection regions using a calibrated target.
+- The camera subsystem shall demonstrate at least **5 pixels/mm** throughout designated inspection regions using a calibrated target.
 - The camera subsystem shall complete at least **30 inspection trials** to evaluate acquisition time, failures, and cycle-time consistency.
 - Each camera shall pass image-quality checks for sharpness, exposure, and frame completeness using validated acceptance thresholds.
 - The acquisition software shall detect disconnected cameras and failed or invalid frames.
