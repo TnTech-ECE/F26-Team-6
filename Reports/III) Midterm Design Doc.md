@@ -173,6 +173,8 @@ FLIR describes thermal imaging as supporting condition monitoring of motors, bat
 *   **Gaps**: Normal heat patterns must be established for the selected aircraft; general equipment examples do not supply validated drone temperature limits.
 *   **Takeaways**: Control measurement timing, compare similar components, and validate separately before combining with visual results.
 
+Published aircraft inspection studies illustrate two choices for Valinor’s dock. Harras et al. reported 85.8% accuracy when classifying propeller damage in their study [19]. To evaluate whether damage is visible from the dock, the team would need labeled examples captured at the installed camera angles and under dock lighting. Rice et al. used hangar-mounted pan-tilt-zoom cameras to inspect selected regions of a parked aircraft [20]. In Valinor’s smaller enclosure, fixed cameras must cover the required components from the available mounting positions. The proposed prototype will use those views to check component presence, compare surface temperatures in observable regions, and tell the operator which checks could not be completed.
+
 ## Measurements of Success
 ### Functionality
 - The AI software shall reliably receive data from the imaging subsystem.
@@ -300,7 +302,11 @@ Because this is a safety-critical system, the engineering team has a strict ethi
 
 [17] International Electrotechnical Commission, “IEC 62443-4-1:2018 — Security for Industrial Automation and Control Systems — Part 4-1: Secure Product Development Lifecycle Requirements.” [Online]. Available: https://webstore.iec.ch/
 
-[18] Electronic Code of Federal Regulations, [14 CFR § 107.15, Condition for safe operation.](https://www.ecfr.gov/current/title-14/chapter-I/subchapter-F/part-107/subpart-B/section-107.15)
+[18] Electronic Code of Federal Regulations, “14 CFR § 107.15 — Condition for safe operation.” [Online]. Available: https://www.ecfr.gov/current/title-14/chapter-I/subchapter-F/part-107/subpart-B/section-107.15
+
+[19] M. S. Harras, S. Saleh, B. Battseren, and W. Hardt, “Vision-based Propeller Damage Inspection Using Machine Learning,” Embedded Selforganising Systems, vol. 10, no. 7, 2023. [Online]. Available: https://www.bibliothek.tu-chemnitz.de/ojs/index.php/cs/article/view/604
+
+[20] M. D. Rice et al., “Automated Multi-Camera Inspection System for Aircraft,” Proceedings of the AAAI Conference on Artificial Intelligence, vol. 40, no. 48, 2026. [Online]. Available: https://doi.org/10.1609/aaai.v40i48.42378
 
 Note: References [10] and [11] are official standard listings; full-text access may require purchase or Tennessee Tech library access. USB-IF specifications are available through its document library.
 
