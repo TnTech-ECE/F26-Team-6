@@ -16,6 +16,10 @@ Preflight inspection is normally used to find visible damage, loose or missing h
 
 Remote cameras provide part of this capability, as commercial docking systems may allow an operator to view the aircraft while it is docked. However, a camera feed alone does not establish an automated health assessment. The usefulness of an image depends on camera placement, focus, lighting, reflections, working distance, and whether the required component is visible. A system that produces inconsistent images may report a difference caused by glare or docking position rather than actual damage. 
 
+Within Valinor’s dock, moving a camera farther from the aircraft brings more of the airframe into view, but each component occupies fewer pixels. A second viewing angle can help determine whether a propeller is missing or hidden behind an arm. Each additional view also adds data that the dock computer must receive and process. Capturing the views in sequence reduces peak demand on the shared USB connection, but leaves less time for the remaining checks before the next flight.
+
+Capture order also affects how the team interprets thermal measurements. If thermal capture follows a series of visible images, adding another camera view delays the temperature reading. Motors cool after landing, and charging can change surface temperatures. A healthy motor measured immediately after one flight may therefore appear warmer than the same motor measured several minutes after another. To make those readings comparable, the team must account for elapsed time since landing and the aircraft’s charging state when choosing the inspection sequence.
+
 Furthermore, before passing any image to a machine learning model, the edge system must mathematically verify optical clarity to avoid false positives. This is done using an image processing quality gate, specifically calculating the Variance of the Laplacian to measure edge sharpness:
 
 $$\text{Variance} = \frac{1}{N} \sum_{x,y} \left( \nabla^2 I(x,y) - \mu \right)^2$$
