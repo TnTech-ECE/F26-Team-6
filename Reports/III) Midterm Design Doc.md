@@ -3,7 +3,7 @@
 ## Introduction
 As autonomous drones are deployed worldwide for logistics, infrastructure inspection, and public safety, keeping airframes reliable without human intervention has become a major challenge. Routine maintenance and early defect detection are essential to prevent crashes in the field. However, most current automated docking and inspection stations are proprietary, expensive, and locked down against third-party hardware or modifications. Existing industrial docks rely on high-cost vision hardware and continuous cloud processing pipelines. This creates a serious barrier for fleet operators and developers who need a flexible, modular system they can tailor to their specific airframes and operating budgets.
 
-To address this challenge, Team 6 is developing Project D.R.A.G.O.N.N. (Drone Repair Analysis by Guided Optics via Neural Networks), an edge-based diagnostic payload built to integrate directly into Valinor Dispatch’s autonomous drone docking stations for both stationary and mobile setups. The system uses commercial off-the-shelf (COTS) hardware, including four USB 3.0 UVC cameras based on the 16 MP Sony IMX519 sensor and an independent radiometric thermal imager. Rather than building custom software from scratch, the sensor pipelines use established computer-vision frameworks and documented interfaces. Cameras are captured sequentially to limit peak USB traffic and support repeatable inspection timing.
+To address this challenge, Team 6 is developing Project D.R.A.G.O.N.N. (Drone Repair Analysis by Guided Optics via Neural Networks), an edge-based diagnostic payload built to integrate directly into Valinor Dispatch’s autonomous drone docking stations for both stationary and mobile setups. The system uses commercial off-the-shelf (COTS) hardware, including a multi-angle UVC camera array and an independent radiometric thermal imager. Rather than building expensive custom software from scratch, each sensor pipeline is developed on top of proven open-source computer vision frameworks and public datasets. Data capture is run through an event-driven sequential loop, reading one device at a time so the USB bus does not choke and the edge board can dedicate all its processing power to the machine learning models.
 
 The scope of this proposal outlines the operational background of automated UAV maintenance, the trade-offs among device hardware and communication protocols, and a comparative survey of existing commercial solutions. It establishes the theoretical foundation for using edge AI to detect structural and mechanical defects across machine vision, and radiometric thermal thresholding. Furthermore, the proposal details the technical specifications provided by Valinor Dispatch, evaluation criteria for successful field operation, budget allocations, available and required technical expertise, and a milestone timeline. Finally, it addresses the operational impact and broader industry implications of deploying an accessible diagnostic architecture built on open-source frameworks.
 
@@ -12,7 +12,7 @@ The scope of this proposal outlines the operational background of automated UAV 
 ### Background
 Autonomous drones are increasingly used in applications where the aircraft may operate repeatedly without a technician standing beside the launch site. Between flights, the drone may return to a fixed or mobile docking station for charging, data transfer, storage, and preparation for its next mission. Without a technician on site, remote operators need to know whether a required part appears to be missing, whether a component is unusually warm, and which areas still need inspection before the next flight. To assess how often a fault could go unnoticed, the team will introduce known faults during controlled testing. The proposed target is an overall PASS in no more than 5% of those inspections.
 
-Preflight inspection is normally used to find visible damage, loose or missing hardware, contamination, abnormal motor condition, and other problems that could affect safe operation. Manufacturer guidance for aircraft such as the Skydio X10 includes examining items such as propellers, motors, airframe, and motor windings for damage or evidence of overheating. A human inspector can use sight, touch, and experience to judge these conditions. An unattended dock cannot reproduce that judgment directly, so the inspection problem must be converted into repeatable measurements that can be collected and evaluated automatically.
+Preflight inspection is normally used to find visible damage, loose or missing hardware, contamination, abnormal motor condition, and other problems that could affect safe operation. Manufacturer guidance for aircraft such as the Skydio X10 includes examining items such as propellers, motors, airframe, and motor windings for damage or evidence of overheating. A human inspector can use sight, touch, sound, and experience to judge these conditions. An unattended dock cannot reproduce that judgment directly, so the inspection problem must be converted into repeatable measurements that can be collected and evaluated automatically.
 
 Remote cameras provide part of this capability, as commercial docking systems may allow an operator to view the aircraft while it is docked. However, a camera feed alone does not establish an automated health assessment. The usefulness of an image depends on camera placement, focus, lighting, reflections, working distance, and whether the required component is visible. A system that produces inconsistent images may report a difference caused by glare or docking position rather than actual damage. 
 
@@ -26,7 +26,7 @@ $$\text{Variance} = \frac{1}{N} \sum_{x,y} \left( \nabla^2 I(x,y) - \mu \right)^
 
 If this variance drops below a hardcoded threshold, the image is flagged as blurry, and the inspection is aborted before wasting edge compute resources. Therefore, the project aims to strictly control the image-capture conditions and verify image quality before applying machine-learning or anomaly-detection methods.
 
-The project is intended to remain adaptable across future drone models and computing platforms. The first prototype may use a particular embedded computer or camera, but the architecture should not require one vendor's product to remain functional. USB Video Class cameras, Ethernet, MIPI, SPI, or supported adapter boards can be used where appropriate. Camera acquisition, sensor preprocessing, machine-learning inference, decision logic, storage, and dock communication are designed to remain separate enough that one layer can be changed without rewriting the full system.
+The project is intended to remain portable across future drone models and computing platforms. The first prototype may use a particular embedded computer or camera, but the architecture should not require one vendor's product to remain functional. USB Video Class cameras, standard audio interfaces, Ethernet, MIPI, SPI, or supported adapter boards can be used where appropriate. Camera acquisition, sensor preprocessing, machine-learning inference, decision logic, storage, and dock communication are designed to remain separate enough that one layer can be changed without rewriting the full system.
 
 ## Preliminary Specifications
 The following specifications define the initial problem boundaries. Numerical limits will be finalized after the team receives the drone geometry, dock dimensions, inspection-time requirement, environmental range, and acceptance criteria from the sponsor.
@@ -36,8 +36,8 @@ The following specifications define the initial problem boundaries. Numerical li
 -	The system shall collect visible and thermal data using a repeatable inspection sequence.
 -	The system shall associate each measurement with an inspection identifier, timestamp, sensor identifier, drone or asset identifier, and component region.
 -	The system shall evaluate defined components individually rather than returning only one aircraft-wide result.
--	The system shall return PASS, WARN, FAIL, or UNVERIFIED for each required component or inspection region.
--	The system shall preserve the image, thermal region, or other evidence associated with a warning or failure.
+-	The system shall return PASS, WARN, FAIL, or INSUFFICIENT DATA for each required component or inspection region.
+-	The system shall preserve the image, thermal region, waveform, spectrum, or other evidence associated with a warning or failure.
 -	The system shall report sensor, lighting, communication, storage, and processing faults separately from detected drone defects.
 -	The system shall run routine inference locally without requiring a continuous internet connection.
 ### Visible Imaging and Controlled Lighting
@@ -49,9 +49,9 @@ The following specifications define the initial problem boundaries. Numerical li
 -	The system shall verify that required lighting channels operate correctly before accepting an image for analysis.
 -	The system shall detect unusable frames caused by blur, obstruction, saturation, insufficient illumination, missing data, or incorrect camera state.
 -	Visible captures shall be synchronized with the inspection sequence so that dock motion, lighting transitions, or thermal capture do not corrupt the measurement.
-- The camera subsystem shall achieve a target image sampling density of **5 pixels/mm** throughout each designated inspection region.
-- Each camera quadrant shall cover its assigned exterior region to a 25-inch working distance.
-- The system shall target delivery of a complete inspection result within **5 minutes** of an accepted request; the target is preliminary pending sponsor confirmation.
+- The camera subsystem shall achieve a target image sampling density of **6 pixels/mm** throughout each designated inspection region.
+- The camera array shall cover the drone's top surface and four vertical sides, with minimal overlap between adjacent views where practical.
+- The camera subsystem shall support completion of the overall inspection cycle within **10 seconds**.
 ### Thermal Imaging
 -	The thermal subsystem shall capture data with the visible inspection lights off unless testing demonstrates that the lighting system does not alter the required thermal measurement.
 -	Thermal data shall be captured after a defined post-docking interval and shall include the elapsed time since landing or motor shutdown.
@@ -106,7 +106,7 @@ The following specifications define the initial problem boundaries. Numerical li
 -	Docking-position variation can change image alignment, focus, reflections and thermal regions. Mechanical repeatability or validated image registration is required.
 -	Ordinary visible-light glass or clear plastic may block long-wave infrared energy and cannot be placed in the thermal optical path unless its transmission has been verified.
 - Camera hardware, including mounts, shall fit within the docking station's **30 × 40-inch footprint** and specified height envelope.
-- Camera fields of view shall be selected to maintain the target sampling density of **5 pixels/mm** while covering their assigned inspection regions.
+- Camera fields of view shall be selected to maintain the target sampling density of **6 pixels/mm** while covering their assigned inspection regions.
 - Adjacent camera views shall minimize overlap where practical without creating unacceptable blind spots.
 - Camera acquisition shall complete within the **10-second inspection-cycle limit**.
 - Combined sensor data transfer shall remain within the measured usable USB bandwidth and available memory capacity.
@@ -135,7 +135,7 @@ The following specifications define the initial problem boundaries. Numerical li
 -	A sensor or model failure shall not be interpreted as a healthy result. Missing or unreliable data shall produce an INSUFFICIENT DATA or equivalent fault state.
 -	For flights under 14 CFR Part 107, the remote pilot in command must check the aircraft system before each flight to determine whether it is safe to operate [18]. The inspection report shall identify the components checked, flag incomplete checks, and provide supporting evidence for the pilot’s assessment. A PASS applies only to the checks performed. The inspection system shall have no authority to release the aircraft for flight.
 - Manufacturer-required maintenance procedures remain in effect.
--	Stored images, thermal data, identifiers, and maintenance records shall be protected according to the sponsor's access, retention, and cybersecurity requirements.
+-	Stored images, audio, thermal data, identifiers, and maintenance records shall be protected according to the sponsor's access, retention, and cybersecurity requirements.
 ### Procurement and Product-Neutrality Constraints
 -	Final component selection depends on verified availability, lead time, lifecycle status, environmental rating, exact interface support, documentation, and total integration cost.
 -	Any procurement or compliance requirement, including NDAA-related requirements, must be confirmed for the exact camera, lens, interface board, and finished configuration rather than assumed from a product family.
@@ -181,8 +181,8 @@ Published aircraft inspection studies illustrate two choices for Valinor’s doc
 - The final implementation shall be capable of processing the camera stream continuously for at least one hour without software failure.
 - The software shall identify and log dropped or invalid frames rather than silently failing.
 - The RGB-only detector shall remain usable independently of the thermal pipeline.
-- The four-camera arrangement shall target at least **5 pixels/mm** at critical inspection regions and cover each assigned quadrant to 25 inches plus measured height variation. Verify with a calibrated target at near, far, and height-extreme points.
-- The system shall complete at least **30 normal inspection trials** to evaluate acquisition time, failures, and cycle-time consistency. Separately, false-PASS validation shall include at least **59 independent seeded-fault trials with no false PASS** to support the preliminary 5% upper-bound target at 95% confidence; add trials if any miss occurs or the analysis requires them.
+- The camera subsystem shall demonstrate at least **6 pixels/mm** throughout designated inspection regions using a calibrated target.
+- The camera subsystem shall complete at least **30 inspection trials** to evaluate acquisition time, failures, and cycle-time consistency.
 - Each camera shall pass image-quality checks for sharpness, exposure, and frame completeness using validated acceptance thresholds.
 - The acquisition software shall detect disconnected cameras and failed or invalid frames.
 ### Detection Accuracy
@@ -217,27 +217,16 @@ A suitable board will be used to perform image processing, machine-learning, and
 
 ### Budget Document
 
-This is the Project Proposal's preliminary budget estimate. Costs are in **USD**, before tax and shipping. Camera and fixture allowances require vendor confirmation. The existing Jetson Orin NX 16 GB is assumed to be sponsor-provided and is excluded from purchase costs.
+| Item                                                        | Estimated Price ($) |
+| :---------------------------------------------------------- | :------------------ |
+| Quad-Camera UVC Array (8MP–12MP CS-Mount)                   | $503.96                |
+| Thermal Imager (FLIR Lepton 3.5 & PureThermal Board)        | $600                |
+| Edge Compute Unit                                           | $500                |
+| Powered USB 3.0 Hub (for sequential data orchestration)     | $30                 |
+| Controlled Lighting (COB LED strips, diffusers, polarizers) | $100                |
+| Mounting Hardware, Enclosures, & Wiring                     | $150                |
+| **Total**                                                   | **$1,380**          |
 
-| Item | Quantity | Estimated total | Basis |
-|---|---:|---:|---|
-| 16 MP IMX519 USB 3.0 UVC cameras (exact module/SKU TBD) | 4 | $504 | $126 each planning allowance |
-| Camera brackets and adjustable mounts | 4 sets | $40–$80 | Planning allowance |
-| FLIR Lepton 3.5 thermal camera | 1 | $164 | Listed candidate price |
-| PureThermal 3 interface board | 1 | $120 | Rounded listed candidate price |
-| Adafruit 4612 white LED strip, 1 m | 2 | $23.90 | Listed candidate price |
-| Adafruit 5648 LED switch board | 2 | $7.90 | Listed candidate price |
-| Regulated 12 V / 3 A lighting supply | 1 | $25–$45 | Planning allowance |
-| Diffusers and optical hardware | 1 set | $25–$50 | Planning allowance |
-| Externally powered USB hub | 1 | $50–$80 | Planning allowance |
-| USB leads, wiring, and protection | 1 lot | $30–$60 | Planning allowance |
-| Adjustable lighting fixture brackets | 1 lot | $30–$60 | Planning allowance |
-| **Mandatory hardware subtotal** | | **$1,019.80–$1,194.80** | Excludes sponsor-provided compute and optional storage |
-| Optional evidence storage / backup | 1 | $25–$60 | Only if existing capacity is insufficient |
-| **Subtotal with optional storage** | | **$1,044.80–$1,254.80** | |
-| OpenCV, GStreamer, compatible DeepStream, Darknet, CVAT, Python tooling | — | **$0 planned software purchase** | License/dependency review still required |
-
-A 15% reserve on the mandatory subtotal is **$152.97–$179.22**, for a preliminary request of **$1,172.77–$1,374.02** before tax and shipping. If optional storage is needed, the estimate including the same reserve is **$1,201.52–$1,443.02**. Valinor's test-drone acquisition is excluded because the model and cost are not yet determined. All values are estimates, not purchase commitments.
 ## Personnel
 Team 6 consist of members whose experience and expertise covers hardware integration, programming, and technical writing. Individual skills as follows:
 
@@ -268,22 +257,17 @@ People near flight operations have an interest in the early detection of faults 
 *   **Phase 4: Fusion & Integration** – Merge optical and thermal metrics into the Diagnostic Consensus Engine to output structured JSON telemetry (PASS, WARN, FAIL).
 *   **Phase 5: Field Testing** – Install the payload into the Valinor Dispatch dock and run full-cycle continuous tests to validate accuracy, latency, and reliability.
 
-<p align="center">
-  <img src="Research%20of%20Subsystems/GanttChart.png" alt="Project Proposal Gantt chart showing dated milestones through Capstone II" width="1100">
-</p>
-<p align="center"><em>Project Proposal schedule: proposed milestones through Capstone II.</em></p>
-
 ## Specific/Broad Implications
 
 ### Specific Implications
-Affordability is the most impactful specific implication of Project D.R.A.G.O.N.N. Standard industrial vision systems are highly expensive, with basic camera arrays costing between $800 and $1,600. The camera allowance in the current budget is approximately $504 for four units; the final amount depends on the selected IMX519 USB module and vendor pricing. A modular COTS approach may make automated drone maintenance more accessible to smaller fleet operators; total cost depends on camera selection, thermal hardware, installation, and maintenance.
+Affordability is the most impactful specific implication of Project D.R.A.G.O.N.N. Standard industrial vision systems are highly expensive, with basic camera arrays costing between $800 and $1,600. By utilizing widely available, standard USB camera modules, the project reduces this cost to roughly $250. This massive cost reduction frees up the budget for other critical sensors, like the thermal imager, and makes automated drone maintenance affordable for fleets of any size.
 
-Furthermore, this setup is highly adaptable. Because the system relies on universally adopted USB connections rather than proprietary hardware, it completely avoids vendor lock-in. If a camera breaks or needs an upgrade, an operator can simply swap it out. Camera replacement still requires checking device compatibility, calibration, and configuration before returning the system to service.
+Furthermore, this setup is highly adaptable. Because the system relies on universally adopted USB connections rather than proprietary hardware, it completely avoids vendor lock-in. If a camera breaks or needs an upgrade, an operator can simply swap it out. The system automatically recognizes the new device without requiring complex software updates or custom coding, ensuring seamless long-term maintenance.
 
 ### Broader Implications, Ethics, and Responsibility as Engineers
 As autonomous drones become common in logistics and public safety, mid-air mechanical failures pose a serious risk to people and property. Standard drone flight controllers cannot detect gradual physical wear. By using AI to catch mechanical issues—such as cracked propellers or failing motors—before a drone ever leaves the dock, this system actively prevents catastrophic crashes and improves public safety.
 
-Because this is a safety-critical system, the engineering team has a strict ethical responsibility to ensure the AI never makes a guess based on bad data. To prevent false alarms or missed defects, the software runs automated quality checks before every inspection; for example, if a camera lens is blurry or dirty, the system immediately aborts the process rather than risking a bad assessment. The system reports visual and thermal evidence with `PASS`, `WARN`, `FAIL`, or `UNVERIFIED` status, while the remote pilot retains flight authority.
+Because this is a safety-critical system, the engineering team has a strict ethical responsibility to ensure the AI never makes a guess based on bad data. To prevent false alarms or missed defects, the software runs automated quality checks before every inspection; for example, if a camera lens is blurry or dirty, the system immediately aborts the process rather than risking a bad assessment. Finally, the system guarantees transparency. It merges the visual, thermal, and audio data into a simple "PASS, WARN, or FAIL" report, ensuring that human operators always retain absolute clarity and final authority over the health of their fleet.
 
 ## References
 [1] Skydio, “Skydio X10 Flight Checklist.” [Online]. Available: https://support.skydio.com/hc/en-us/articles/25013300914203-Skydio-X10-Flight-Checklist
@@ -309,6 +293,8 @@ Because this is a safety-critical system, the engineering team has a strict ethi
 [11] International Organization for Standardization, “ISO 15739:2023 — Photography — Electronic Still-Picture Imaging — Noise Measurements.” [Online]. Available: https://www.iso.org/standard/82233.html
 
 [12] USB Implementers Forum, “USB Video Class v1.5 Specification.” [Online]. Available: https://www.usb.org/document-library/video-class-v15-document-set
+
+[13] USB Implementers Forum, “USB Device Class Definition for Audio Devices, Release 2.0.” [Online]. Available: https://www.usb.org/documents
 
 [15] International Electrotechnical Commission, “IEC 62368-1 — Audio/Video, Information and Communication Technology Equipment — Part 1: Safety Requirements.” [Online]. Available: https://webstore.iec.ch/
 
@@ -340,23 +326,23 @@ Note: References [10] and [11] are official standard listings; full-text access 
 
 **Valinor Dispatch: Multisensor, AI/ML-Assisted Drone Inspection**
 
-**Team 06 | Selectively revised conceptual design | November 18, 2026**
+**Team 06 | Conceptual design baseline | November 20, 2026**
 
-**Document status:** Proposed engineering design for team and client review. Unless a requirement is identified as a supplied physical constraint or published device specification, numerical targets and design choices are preliminary and have **not** been verified by testing or approved by Valinor. This document combines the team's RGB camera, controlled lighting, thermal, and ML research in the formatting style of the original ML conceptual design. [3][5][7][9][11]
+**Document status:** Adopted team design baseline for detailed design and prototype planning. Known client-provided facts and cited device specifications are distinguished from engineering assumptions. Where the client has not provided a final constraint or interface specification, the team has selected a definite baseline value or behavior throughout this document. These selections are **project assumptions, not statements of Valinor approval, verified measurements, or established flight-safety performance**. They govern the proposed prototype unless the team revises the document after testing or sponsor feedback. This document combines the team's RGB camera, controlled lighting, thermal, and ML research. [3][5][7][9][11][32]
 
 ## 1. Introduction and fully formulated problem
 
 Valinor's Dispatch dock houses a drone between flights. A drone may return with a missing or damaged propeller, surface damage, loose or missing hardware, or an unusually warm component. A conventional camera cannot directly measure surface temperature, and a thermal camera cannot resolve all of the small visible features. The proposed project adds a coordinated inspection system inside the dock to gather visible and thermal measurements, evaluate the components that can actually be observed, and provide a documented maintenance-oriented result. [3][5][7][9][11] [41]
 
-The selected concept uses four corner-mounted USB 3.0 UVC cameras based on the 16 MP Sony IMX519 sensor, controllable white LED lighting, one FLIR Lepton 3.5 with a PureThermal 3 interface, and the existing NVIDIA Jetson Orin NX 16 GB computing module. The primary processing order is dock authorization → thermal capture with visible lights off → controlled-light RGB capture → image-quality checks → component and thermal measurements → decision-level fusion → report and log. The dock controller, rather than the AI model, remains responsible for flight permission, charging controls, and safety interlocks. [3][5][7][9][11][19]
+The selected concept uses four upper-corner-mounted **16 MP Sony IMX519 USB 3.0 Type-A** Video Class (UVC) cameras—each assigned to inspect a single drone quadrant with centerline overlap—controllable white LED lighting, one FLIR Lepton 3.5 with a PureThermal 3 interface, an externally powered industrial USB 3.0 hub, and the existing NVIDIA Jetson Orin NX 16 GB computing module. The primary processing order is dock authorization → thermal capture with visible lights off → controlled-light RGB capture → image-quality checks → component and thermal measurements → decision-level fusion → report and log. The dock controller, rather than the AI model, remains responsible for flight permission, charging controls, and safety interlocks. [3][5][7][9][11][32]
 
 This is an inspection aid, not an aircraft airworthiness certification device. A component outside the cameras' field of view, an untested defect type, or unreliable sensor data must be reported as an inspection limitation; a model's confidence score does not prove that a drone is safe to fly. [3][9][1]
 
-### 1.1 Fully formulated problem and proposed system requirements
+### 1.1 Fully formulated problem and system requirements
 
-**Problem statement:** The team shall design, prototype, and evaluate an integrated dock inspection system that gathers repeatable RGB and thermal measurements while the drone is safely stationary, identifies designated exterior components, and evaluates observable conditions without compromising normal dock operations. The baseline shall determine whether required components are visible, flag a potentially missing propeller or other required part only when its expected location can be evaluated reliably, and assess unusual relative surface temperatures for mapped thermal regions when calibrated data are available. Chipped propeller edges, cracks, and other fine surface damage are candidate research targets but shall not be claimed as detected until labeled examples and held-out testing support that capability. The system shall provide traceable `PASS`, `WARN`, `FAIL`, or `UNVERIFIED` results to the existing dock software and shall not treat an unobserved or unvalidated condition as evidence of a safe aircraft. Preliminary success targets are a seeded-fault false-`PASS` rate no greater than 5%, at least 90% recall for each required visible component class, and a complete inspection result within five minutes; all targets require sponsor review and test validation.
+**Problem statement:** The team shall design, prototype, and evaluate an integrated dock inspection system that gathers repeatable RGB and thermal measurements while the drone is safely stationary, identifies designated exterior components, and evaluates observable conditions without compromising normal dock operations. The baseline shall determine whether required components are visible, flag a potentially missing propeller or other required part only when its expected location can be evaluated reliably, and assess unusual relative surface temperatures for mapped thermal regions when calibrated data are available. Chipped propeller edges, cracks, and other fine surface damage are candidate research targets but shall not be claimed as detected until labeled examples and held-out testing support that capability. The system shall provide traceable `PASS`, `WARN`, `FAIL`, or `UNVERIFIED` results to the existing dock software and shall not treat an unobserved or unvalidated condition as evidence of a safe aircraft.
 
-| ID | System-level **shall** statement | Origin and status |
+| ID | System-level **shall** statement | Design basis |
 |---|---|---|
 | <span style="white-space: nowrap;">SYS-01</span> | The system **shall** begin an inspection only after the dock controller confirms a secured, non-operating drone and an inspection-permitted state. | Safety/operational constraint; proposed, client confirmation needed [3][9][5][6][13] |
 | SYS-02 | The system **shall** obtain RGB views of every designated inspectable exterior component using the installed four-camera quadrant arrangement and shall identify any required component that cannot be observed. | Camera and ML team concept; final coverage list TBD [3][9][11][28] |
@@ -389,22 +375,22 @@ The adopted measurable ML targets distinguish inspection speed, component locali
 
 ### 1.2 Stakeholders and their needs
 
-The proposed inspection system affects several groups with different operational, safety, and maintenance needs. These needs guide the requirements and the system's choice to report uncertainty explicitly.
+The inspection system affects several groups with different operational, safety, and maintenance needs. These needs guide the requirements and the system's choice to report uncertainty explicitly.
 
 | Stakeholder | Relevant needs and concerns | Related system requirements |
 |---|---|---|
-| Valinor engineering and dock-integration staff | Reliable integration with existing dock hardware and software; maintainable interfaces; no interference with safety-critical dock functions | SYS-05, SYS-08, SYS-10, SYS-13, SYS-15, SYS-16 |
+| Valinor engineering and dock-integration staff | Reliable integration with existing dock hardware and software; maintainable interfaces; no interference with safety-critical dock functions | SYS-05, SYS-08, SYS-10, SYS-13, SYS-16 |
 | Remote pilots and dock operators | Timely, interpretable inspection outcomes; visible limitations and reasons for warnings; no false indication that the aircraft has been cleared for flight | SYS-01, SYS-06, SYS-07, SYS-11 |
 | Maintenance technicians | Component-specific findings, preserved evidence, relevant reason codes, and a practical way to review possible faults without unnecessary repeated inspections | SYS-06, SYS-08, SYS-09, SYS-12 |
 | Valinor's customers | Predictable system availability, traceable inspection records, and responsible handling of maintenance information | SYS-09, SYS-11, SYS-13 |
-| People near flight operations | Conservative handling of missed or uncertain defects, and reasonable protection from unnecessary image collection | SYS-07, SYS-10, SYS-18 |
+| People near flight operations | Conservative handling of missed or uncertain defects, and reasonable protection from unnecessary image collection | SYS-07, SYS-10, SYS-19 |
 | Federal Aviation Administration (FAA) | An operating workflow that supports the remote pilot's legal inspection responsibilities rather than assigning flight authority to an AI model | SYS-01, SYS-07, SYS-10 |
 
-The dock controller is an interfacing subsystem rather than a person or organization. It must supply an authorized inspection state and receive versioned, machine-readable results, while retaining operational control over dock functions. The proposed requirements remain subject to review with Valinor before they are treated as client-approved acceptance criteria.
+The dock controller is an interfacing subsystem rather than a person or organization. It must supply an authorized inspection state and receive versioned, machine-readable results, while retaining operational control over dock functions. The prototype applies the adopted reporting and safety requirements without representing them as client-approved flight-authorization rules.
 
-### 1.3 Known constraints, measurements, and unresolved source differences
+### 1.3 Design constraints and fixed project assumptions
 
-| Subject | Team-provided information | Design interpretation and next action |
+| Subject | Design baseline | Implementation and verification boundary |
 |---|---|---|
 | Dock enclosure | **30 in W × 40 in L × 14 in H** usable planning envelope, selected from the client's approximate **12–16 in** height range [5][6][13][11][28] | The team shall use the 14 in nominal envelope for fixture design and perform a clearance fit-check before installation; no proprietary dock CAD is required. |
 | Prototype airframe | **PX4-compatible quadrotor; 7 in propellers; ≤20 in × 20 in** plan-view inspection envelope; top-accessible battery casing | This single airframe geometry defines the inspection regions and camera coverage. The team assumes a test unit will be sourced with Valinor's assistance and furnished without a charge to the team's equipment budget; this is a purchasing assumption, not a confirmed client commitment. [57] |
@@ -418,14 +404,15 @@ The dock controller is an interfacing subsystem rather than a person or organiza
 | Dock data interface | **Authenticated loopback HTTP/JSON** on `127.0.0.1:8765`, with a sponsor-side caller/authorization adapter | The team develops the inspection service and mock dock adapter without receiving proprietary dock code; the integration boundary requires only an externally implemented request/heartbeat client. |
 | Evidence storage | **64 GB available local allocation**, 20 inspections/day, **25 MB retained evidence/inspection**, **30-day retention** | Expected retained evidence is ~15 GB per month; reserve additional space for indexes, logs, software, and fault recovery. Full-storage conditions prevent a false `PASS`. |
 
-**Valinor interface and prototyping constraints:** Valinor identified the existing NVIDIA Jetson Orin NX 16 GB as the intended processing platform, mounted on the dock's backplate. The dock already performs state monitoring, including current-based drone-presence detection. Valinor will not provide proprietary docking source code, and the dock design is actively changing. The team has been advised to use approximate physical dimensions rather than depend on an official CAD model, which could become outdated during development. Camera mounts, lighting fixtures, and sensor placements shall therefore be designed and tested using adjustable prototype arrangements before final installation.
+**Runtime compatibility baseline:** The NVIDIA Jetson Orin NX 16 GB is the installed processing module, and **JetPack 6.1 with DeepStream 7.1** is the team's selected design environment. The original Jetson Nano's DeepStream 6.0.1 / JetPack 4.6.1 pairing shall not be used. The inspection process runs as a separate service/container so that the sponsor's controller and proprietary code are not modified. Startup checks shall compare installed runtime versions against the documented baseline; an incompatibility blocks inspection rather than modifying dock software automatically. [9][21]
 
 Valinor indicated that the dock has substantial available power capacity and that the team should prioritize effective camera and lighting performance during prototyping. However, the exact available voltages, current limits, connector ratings, and power-distribution connections still require confirmation. The inspection system shall use an approved dock interface and team-collected inspection data. Aircraft-specific information protected by NDA shall not be included in public source code or documentation. [57]
 
+**Power, access, and data policy:** The 12 V/5 A auxiliary rail, 64 GB local storage allocation, and loopback endpoint are adopted integration assumptions. Prototype power may be applied only after verifying the actual dock connection meets those electrical ratings; absent or insufficient supplies shall safely block inspection. The team owns the inspection code and its newly collected datasets. NDA-protected aircraft specifications and proprietary dock code shall not be included in public repositories. These engineering baselines are used consistently throughout the remaining sections; failed verification triggers a controlled design revision rather than a silent change to requirements. [67]
 
 ## 2. Comparative analysis of possible solutions
 
-Each comparison weighs inspection coverage, ease of integration, risk, development time, repeatability, and the team's limited semester resources. A selected concept is a starting point for testing, not proof that the performance requirement is met.
+Each comparison weighs inspection coverage, ease of integration, risk, development time, repeatability, and the team's limited semester resources. The adopted concept defines the prototype configuration; performance is established only by its verification results.
 
 ### 2.1 Visible-camera position and interface
 
@@ -443,17 +430,19 @@ Each comparison weighs inspection coverage, ease of integration, risk, developme
 
 **Spatial Sampling & Maximum `5 pixels/mm` Reach (`1.0 mm` Main Feature Size):** Using the horizontal field-of-view relation $\text{Physical FOV (mm)} = 2 \times \text{WD} \times \tan(\theta_H / 2)$ with `4656` horizontal pixels and $\theta_H = 65^\circ$, the maximum working distance before pixel density drops below **`5 pixels/mm`** is:
 
-The selected camera direction is a 16 MP Sony IMX519-based USB 3.0 UVC module, with a target of **at least 5 pixels/mm** at designated critical regions. The exact vendor SKU, lens, and output modes must be verified before procurement.
+$$
+\text{Max Width at } 5\text{ pixels/mm} = \frac{4656\text{ pixels}}{5\text{ pixels/mm}} = 931.2\text{ mm}\ (\approx 36.66\text{ in})
+$$
 
-\[
-\text{sampled width at 0.5 mm}=5\ \text{pixels/mm}\times0.5\ \text{mm}=2.5\ \text{pixels}
-\]
+$$
+\text{WD}_{\max} = \frac{931.2\text{ mm}}{2 \times \tan(32.5^\circ)} \approx 730.8\text{ mm}\ (\mathbf{28.77\text{ in}})
+$$
 
-\[
-\text{feature width for 3 pixels}=3/(5\ \text{pixels/mm})=0.6\ \text{mm}
-\]
+Because **`28.77 in` exceeds the `25.32 in` slant distance to the drone's center**, every point inside each camera's assigned quadrant exceeds the **`5 pixels/mm`** target (`SYS-14`)—delivering **`12.62 pixels/mm`** at the `11.40 in` near corner, **`7.97 pixels/mm`** at the `18.03 in` quadrant midpoint, and **`5.68 pixels/mm`** at the `25.32 in` drone center, plus an extra **`3.45 in` (`~88 mm`)** overlap margin past the centerlines at $\ge 5\text{ pixels/mm}$. For the **`1.0 mm`** main target feature size, `5 pixels/mm` provides **5 pixels** across the feature:
 
-These are sampling calculations, not proof of crack, chip or scratch recognition. The effective detail level also depends on lens focus, perspective, glare, noise, JPEG compression, model input resizing and any high-resolution crop analysis. The RGB team shall measure sampling at near, center and far component locations. The ML team shall determine the smallest defect size that can actually be classified under representative conditions. The exact vendor IMX519 USB module specifications and lens must be cited before procurement; reference [4] describes the different IMX500 sensor and does not validate the selected camera module.
+$$
+\text{sampled width at } 1.0\text{ mm} = 5\text{ pixels/mm} \times 1.0\text{ mm} = 5\text{ pixels}
+$$
 
 $$
 \text{minimum sampling requirement for 5 pixels across } 1.0\text{ mm} = \frac{5\text{ pixels}}{1.0\text{ mm}} = 5\text{ pixels/mm}
@@ -1025,11 +1014,9 @@ The AlexeyAB/Darknet code license supports the team's interest in modifiable sou
 
 | Standard | Influence on the proposed subsystem | Planned evidence or test |
 |---|---|---|
-| ISO 12233:2024, camera resolution and spatial-frequency response | Supports the 5 px/mm sampling target and the requirement to verify detail at the farthest point and height extremes in each camera quadrant | Image a calibrated resolution/slanted-edge target at near, far and representative height positions; record measured sampling and resolved detail with the installed lens and capture mode [10][11] |
-| ISO 15739:2023, camera noise and dynamic range | Informs fixed exposure/gain selection and evaluation of image noise under the chosen lighting | Capture a suitable uniform target at the approved settings; record noise and clipping across repeat captures [11] |
-| ISO 18434-1/-2 and ASTM E1933/E1934, thermography and emissivity | Informs thermal ROI interpretation, emissivity treatment, and retention of capture conditions; does not set a universal motor temperature limit | Compare measurements against a suitable reference target and document emissivity, reflected temperature, view angle, calibration state and repeatability [16][17] |
-| IEC 62368-1, equipment safety | Informs separation of low-voltage logic from the fused 12 V lighting circuit, rated wiring/connectors and enclosure temperature checks | Inspect wiring and fuse ratings against the approved schematic; measure channel current and check component temperatures during the lighting duty cycle [15] |
-| IEC 62443-4-1:2018, secure product development lifecycle requirements | Guides secure development of the dock-facing inspection software, including request checking, fault handling, change tracking and vulnerability remediation | Test malformed, stale, unauthorized and duplicate messages; record expected responses and software revisions; review versioned issue/remediation records [2] |
+| **ISO 12233:2024**, digital cameras — resolution and spatial frequency responses | Established the `5 pixels/mm` (`1.0 mm` target feature size at `5 pixels` across; `28.77 in` max distance) sampling requirement and guided selection of the `16 MP` IMX519 sensor with locked/motorized focus | Measure spatial frequency response (MTF) at near (`~11.40 in`), center (`25.32 in`), and `28.77 in` positions using a slanted-edge resolution test chart [11] |
+| **ISO 15739:2023**, electronic still-picture imaging — noise measurements | Guided camera exposure-stabilization rules (`SYS-04`), ring-buffer frame flushing, and evaluation of noise/dynamic range under LED illumination | Measure temporal noise, clipping, and brightness repeatability across fixed-exposure reference targets under `GENERAL` LED mode [16] |
+| **IEC 62443-4-1:2018**, secure product development lifecycle requirements | Guides secure development of the dock-facing inspection software, including request checking, fault handling, change tracking and vulnerability remediation | Test malformed, stale, unauthorized and duplicate messages; record expected responses and software revisions; review versioned issue/remediation records [2] |
 
 **Engineering process references:** NIST's AI Risk Management Framework and IEEE 7000-2021 inform risk and ethical review for false-`PASS` results, operator overreliance and uncertainty. ISO/IEC/IEEE 29148:2018 informs clear, traceable, verifiable requirements; IEEE 1012-2024 informs software verification and validation planning. These are treated as design/development process references, not counted as distinct physical-subsystem standards or as evidence of compliance certification. [1][14][18]
 
@@ -1093,7 +1080,7 @@ The supplied research demonstrates that the team has developed work in RGB/optic
 The team adopts **November 20–December 4, 2026** for closing detailed-design assumptions and the **December 4, 2026** stretch-feature go/no-go review. Bench verification and mock-controller interface tests precede installation in the dock. The existing figure remains the project-wide Gantt reference; the baseline sequencing is Jetson/runtime verification → camera FOV and power bench tests → thermal calibration → mock HTTP/JSON dock integration → full inspection and fault-injection tests. Physical performance, not a further client questionnaire, determines whether the selected prototype passes its requirements.
 
 <p align="center">
-  <img src="Research%20of%20Subsystems/GanttChart.png" alt="Dated project Gantt chart showing milestones through Capstone II" width="1100">
+  <img src="Research%20of%20Subsystems/GanttChart.png" alt="Project Gantt Chart" width="850">
 </p>
 
 

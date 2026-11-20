@@ -1,10 +1,10 @@
-﻿
+
 # F26_Team-6_Project_D.R.A.G.O.N.N.
 
 ## Introduction
 As autonomous drones are deployed worldwide for logistics, infrastructure inspection, and public safety, keeping airframes reliable without human intervention has become a major challenge. Routine maintenance and early defect detection are essential to prevent crashes in the field. However, most current automated docking and inspection stations are proprietary, expensive, and locked down against third-party hardware or modifications. Existing industrial docks rely on high-cost vision hardware and continuous cloud processing pipelines. This creates a serious barrier for fleet operators and developers who need a flexible, modular system they can tailor to their specific airframes and operating budgets.
 
-To address this challenge, Team 6 is developing Project D.R.A.G.O.N.N. (Drone Repair Analysis by Guided Optics via Neural Networks), an edge-based diagnostic payload built to integrate directly into Valinor Dispatch’s autonomous drone docking stations for both stationary and mobile setups. The system uses commercial off-the-shelf (COTS) hardware, including a multi-angle UVC camera array and an independent radiometric thermal imager. Rather than building expensive custom software from scratch, each sensor pipeline is developed on top of proven open-source computer vision frameworks and public datasets. Data capture is run through an event-driven sequential loop, reading one device at a time so the USB bus does not choke and the edge board can dedicate all its processing power to the machine learning models.
+To address this challenge, Team 6 is developing Project D.R.A.G.O.N.N. (Drone Repair Analysis by Guided Optics via Neural Networks), an edge-based diagnostic payload built to integrate directly into Valinor Dispatch's autonomous drone docking stations for both stationary and mobile setups. The system uses commercial off-the-shelf (COTS) hardware, including a multi-angle UVC camera array and an independent radiometric thermal imager. Rather than building expensive custom software from scratch, each sensor pipeline is developed on top of proven open-source computer vision frameworks and public datasets. Data capture is run through an event-driven sequential loop, reading one device at a time so the USB bus does not choke and the edge board can dedicate all its processing power to the machine learning models.
 
 The scope of this proposal outlines the operational background of automated UAV maintenance, the trade-offs among device hardware and communication protocols, and a comparative survey of existing commercial solutions. It establishes the theoretical foundation for using edge AI to detect structural and mechanical defects across machine vision, and radiometric thermal thresholding. Furthermore, the proposal details the technical specifications provided by Valinor Dispatch, evaluation criteria for successful field operation, budget allocations, available and required technical expertise, and a milestone timeline. Finally, it addresses the operational impact and broader industry implications of deploying an accessible diagnostic architecture built on open-source frameworks.
 
@@ -13,13 +13,13 @@ The scope of this proposal outlines the operational background of automated UAV 
 ### Background
 Autonomous drones are increasingly used in applications where the aircraft may operate repeatedly without a technician standing beside the launch site. Between flights, the drone may return to a fixed or mobile docking station for charging, data transfer, storage, and preparation for its next mission. Without a technician on site, remote operators need to know whether a required part appears to be missing, whether a component is unusually warm, and which areas still need inspection before the next flight. To assess how often a fault could go unnoticed, the team will introduce known faults during controlled testing. The proposed target is an overall PASS in no more than 5% of those inspections.
 
-Preflight inspection is normally used to find visible damage, loose or missing hardware, contamination, abnormal motor condition, and other problems that could affect safe operation. Manufacturer guidance for aircraft such as the Skydio X10 includes examining items such as propellers, motors, airframe, and motor windings for damage or evidence of overheating. A human inspector can use sight, touch, sound, and experience to judge these conditions. An unattended dock cannot reproduce that judgment directly, so the inspection problem must be converted into repeatable measurements that can be collected and evaluated automatically.
+Preflight inspection is normally used to find visible damage, loose or missing hardware, contamination, abnormal motor condition, and other problems that could affect safe operation. Manufacturer guidance for aircraft such as the Skydio X10 includes examining items such as propellers, motors, airframe, and motor windings for damage or evidence of overheating. A human inspector can use sight, touch, and experience to judge these conditions. An unattended dock cannot reproduce that judgment directly, so the inspection problem must be converted into repeatable measurements that can be collected and evaluated automatically.
 
 Remote cameras provide part of this capability, as commercial docking systems may allow an operator to view the aircraft while it is docked. However, a camera feed alone does not establish an automated health assessment. The usefulness of an image depends on camera placement, focus, lighting, reflections, working distance, and whether the required component is visible. A system that produces inconsistent images may report a difference caused by glare or docking position rather than actual damage. 
 
-Within Valinor’s dock, moving a camera farther from the aircraft brings more of the airframe into view, but each component occupies fewer pixels. A second viewing angle can help determine whether a propeller is missing or hidden behind an arm. Each additional view also adds data that the dock computer must receive and process. Capturing the views in sequence reduces peak demand on the shared USB connection, but leaves less time for the remaining checks before the next flight.
+Within Valinor's dock, moving a camera farther from the aircraft brings more of the airframe into view, but each component occupies fewer pixels. A second viewing angle can help determine whether a propeller is missing or hidden behind an arm. Each additional view also adds data that the dock computer must receive and process. Capturing the views in sequence reduces peak demand on the shared USB connection, but leaves less time for the remaining checks before the next flight.
 
-Capture order also affects how the team interprets thermal measurements. If thermal capture follows a series of visible images, adding another camera view delays the temperature reading. Motors cool after landing, and charging can change surface temperatures. A healthy motor measured immediately after one flight may therefore appear warmer than the same motor measured several minutes after another. To make those readings comparable, the team must account for elapsed time since landing and the aircraft’s charging state when choosing the inspection sequence.
+Capture order also affects how the team interprets thermal measurements. If thermal capture follows a series of visible images, adding another camera view delays the temperature reading. Motors cool after landing, and charging can change surface temperatures. A healthy motor measured immediately after one flight may therefore appear warmer than the same motor measured several minutes after another. To make those readings comparable, the team must account for elapsed time since landing and the aircraft's charging state when choosing the inspection sequence.
 
 Furthermore, before passing any image to a machine learning model, the edge system must mathematically verify optical clarity to avoid false positives. This is done using an image processing quality gate, specifically calculating the Variance of the Laplacian to measure edge sharpness:
 
@@ -27,7 +27,7 @@ $$\text{Variance} = \frac{1}{N} \sum_{x,y} \left( \nabla^2 I(x,y) - \mu \right)^
 
 If this variance drops below a hardcoded threshold, the image is flagged as blurry, and the inspection is aborted before wasting edge compute resources. Therefore, the project aims to strictly control the image-capture conditions and verify image quality before applying machine-learning or anomaly-detection methods.
 
-The project is intended to remain portable across future drone models and computing platforms. The first prototype may use a particular embedded computer or camera, but the architecture should not require one vendor's product to remain functional. USB Video Class cameras, standard audio interfaces, Ethernet, MIPI, SPI, or supported adapter boards can be used where appropriate. Camera acquisition, sensor preprocessing, machine-learning inference, decision logic, storage, and dock communication are designed to remain separate enough that one layer can be changed without rewriting the full system.
+The project is intended to remain portable across future drone models and computing platforms. The first prototype may use a particular embedded computer or camera, but the architecture should not require one vendor's product to remain functional. USB Video Class cameras, Ethernet, MIPI, SPI, or supported adapter boards can be used where appropriate. Camera acquisition, sensor preprocessing, machine-learning inference, decision logic, storage, and dock communication are designed to remain separate enough that one layer can be changed without rewriting the full system.
 
 ## Preliminary Specifications
 The following specifications define the initial problem boundaries. Numerical limits will be finalized after the team receives the drone geometry, dock dimensions, inspection-time requirement, environmental range, and acceptance criteria from the sponsor.
@@ -38,7 +38,7 @@ The following specifications define the initial problem boundaries. Numerical li
 -	The system shall associate each measurement with an inspection identifier, timestamp, sensor identifier, drone or asset identifier, and component region.
 -	The system shall evaluate defined components individually rather than returning only one aircraft-wide result.
 -	The system shall return PASS, WARN, FAIL, or INSUFFICIENT DATA for each required component or inspection region.
--	The system shall preserve the image, thermal region, waveform, spectrum, or other evidence associated with a warning or failure.
+-	The system shall preserve the image, thermal region, or other evidence associated with a warning or failure.
 -	The system shall report sensor, lighting, communication, storage, and processing faults separately from detected drone defects.
 -	The system shall run routine inference locally without requiring a continuous internet connection.
 ### Visible Imaging and Controlled Lighting
@@ -106,7 +106,7 @@ The following specifications define the initial problem boundaries. Numerical li
 -	Required surfaces may be hidden by the landing gear, arms, payload, dock structure, or other components. The system cannot classify damage that is not represented in the captured data.
 -	Docking-position variation can change image alignment, focus, reflections and thermal regions. Mechanical repeatability or validated image registration is required.
 -	Ordinary visible-light glass or clear plastic may block long-wave infrared energy and cannot be placed in the thermal optical path unless its transmission has been verified.
-- Camera hardware, including mounts, shall fit within the docking station's **30 × 40-inch footprint** and specified height envelope.
+- Camera hardware, including mounts, shall fit within the docking station's **30 x 40-inch footprint** and specified height envelope.
 - Camera fields of view shall be selected to maintain the target sampling density of **6 pixels/mm** while covering their assigned inspection regions.
 - Adjacent camera views shall minimize overlap where practical without creating unacceptable blind spots.
 - Camera acquisition shall complete within the **10-second inspection-cycle limit**.
@@ -134,9 +134,9 @@ The following specifications define the initial problem boundaries. Numerical li
 ### Safety and Operational Constraints
 -	The inspection system shall not command propeller or motor operation unless the aircraft, enclosure, and dock controls provide an approved safe test condition.
 -	A sensor or model failure shall not be interpreted as a healthy result. Missing or unreliable data shall produce an INSUFFICIENT DATA or equivalent fault state.
--	For flights under 14 CFR Part 107, the remote pilot in command must check the aircraft system before each flight to determine whether it is safe to operate [18]. The inspection report shall identify the components checked, flag incomplete checks, and provide supporting evidence for the pilot’s assessment. A PASS applies only to the checks performed. The inspection system shall have no authority to release the aircraft for flight.
+-	For flights under 14 CFR Part 107, the remote pilot in command must check the aircraft system before each flight to determine whether it is safe to operate [18]. The inspection report shall identify the components checked, flag incomplete checks, and provide supporting evidence for the pilot's assessment. A PASS applies only to the checks performed. The inspection system shall have no authority to release the aircraft for flight.
 - Manufacturer-required maintenance procedures remain in effect.
--	Stored images, audio, thermal data, identifiers, and maintenance records shall be protected according to the sponsor's access, retention, and cybersecurity requirements.
+-	Stored images, thermal data, identifiers, and maintenance records shall be protected according to the sponsor's access, retention, and cybersecurity requirements.
 ### Procurement and Product-Neutrality Constraints
 -	Final component selection depends on verified availability, lead time, lifecycle status, environmental rating, exact interface support, documentation, and total integration cost.
 -	Any procurement or compliance requirement, including NDAA-related requirements, must be confirmed for the exact camera, lens, interface board, and finished configuration rather than assumed from a product family.
@@ -174,7 +174,7 @@ FLIR describes thermal imaging as supporting condition monitoring of motors, bat
 *   **Gaps**: Normal heat patterns must be established for the selected aircraft; general equipment examples do not supply validated drone temperature limits.
 *   **Takeaways**: Control measurement timing, compare similar components, and validate separately before combining with visual results.
 
-Published aircraft inspection studies illustrate two choices for Valinor’s dock. Harras et al. reported 85.8% accuracy when classifying propeller damage in their study [19]. To evaluate whether damage is visible from the dock, the team would need labeled examples captured at the installed camera angles and under dock lighting. Rice et al. used hangar-mounted pan-tilt-zoom cameras to inspect selected regions of a parked aircraft [20]. In Valinor’s smaller enclosure, fixed cameras must cover the required components from the available mounting positions. The proposed prototype will use those views to check component presence, compare surface temperatures in observable regions, and tell the operator which checks could not be completed.
+Published aircraft inspection studies illustrate two choices for Valinor's dock. Harras et al. reported 85.8% accuracy when classifying propeller damage in their study [19]. To evaluate whether damage is visible from the dock, the team would need labeled examples captured at the installed camera angles and under dock lighting. Rice et al. used hangar-mounted pan-tilt-zoom cameras to inspect selected regions of a parked aircraft [20]. In Valinor's smaller enclosure, fixed cameras must cover the required components from the available mounting positions. The proposed prototype will use those views to check component presence, compare surface temperatures in observable regions, and tell the operator which checks could not be completed.
 
 ## Measurements of Success
 ### Functionality
@@ -220,7 +220,7 @@ A suitable board will be used to perform image processing, machine-learning, and
 
 | Item                                                        | Estimated Price ($) |
 | :---------------------------------------------------------- | :------------------ |
-| Quad-Camera UVC Array (8MP–12MP CS-Mount)                   | $503.96                |
+| Quad-Camera UVC Array (8MP-12MP CS-Mount)                   | $503.96                |
 | Thermal Imager (FLIR Lepton 3.5 & PureThermal Board)        | $600                |
 | Edge Compute Unit                                           | $500                |
 | Powered USB 3.0 Hub (for sequential data orchestration)     | $30                 |
@@ -247,16 +247,16 @@ The Instructors are Dr. Christopher Johnson and Owen O'Connor, who will function
 
 The primary stakeholder for Project D.R.A.G.O.N.N. is Valinor Dispatch, the project sponsor. Valinor needs a way to check returning aircraft for missing components and unusual surface temperatures before the next flight. The system must fit within the existing dock infrastructure and provide results quickly enough to help reduce downtime during drone maintenance and repair.
 
-Remote pilots and dock operators need a clear report identifying which components were inspected and which require further review. Maintenance technicians need the location of each suspected issue and the image or thermal measurement that prompted the warning. Valinor’s clients depend on reliable service. An unnecessary warning can delay a scheduled mission, while a missed fault can leave an aircraft in service when it needs maintenance.
+Remote pilots and dock operators need a clear report identifying which components were inspected and which require further review. Maintenance technicians need the location of each suspected issue and the image or thermal measurement that prompted the warning. Valinor's clients depend on reliable service. An unnecessary warning can delay a scheduled mission, while a missed fault can leave an aircraft in service when it needs maintenance.
 
-People near flight operations have an interest in the early detection of faults that could put them at risk. Limiting camera coverage to the aircraft and dock also helps protect their privacy. The Federal Aviation Administration (FAA) is a regulatory stakeholder because the inspection report supports the remote pilot in command’s preflight assessment.
+People near flight operations have an interest in the early detection of faults that could put them at risk. Limiting camera coverage to the aircraft and dock also helps protect their privacy. The Federal Aviation Administration (FAA) is a regulatory stakeholder because the inspection report supports the remote pilot in command's preflight assessment.
 
 ## Timeline
-*   **Phase 1: Procurement & Architecture Setup** – Acquire UVC cameras, FLIR Lepton sensor, and edge compute hardware. Establish dock mounting constraints.
-*   **Phase 2: Subsystem Orchestration** – Develop the Python-based sequential capture loop to prevent USB bus saturation and integrate the OpenCV Variance of the Laplacian blur check.
-*   **Phase 3: Model Training** – Train visual anomaly models on pristine drone datasets (Anomalib) and calibrate thermal ROI thresholds.
-*   **Phase 4: Fusion & Integration** – Merge optical and thermal metrics into the Diagnostic Consensus Engine to output structured JSON telemetry (PASS, WARN, FAIL).
-*   **Phase 5: Field Testing** – Install the payload into the Valinor Dispatch dock and run full-cycle continuous tests to validate accuracy, latency, and reliability.
+*   **Phase 1: Procurement & Architecture Setup** - Acquire UVC cameras, FLIR Lepton sensor, and edge compute hardware. Establish dock mounting constraints.
+*   **Phase 2: Subsystem Orchestration** - Develop the Python-based sequential capture loop to prevent USB bus saturation and integrate the OpenCV Variance of the Laplacian blur check.
+*   **Phase 3: Model Training** - Train visual anomaly models on pristine drone datasets (Anomalib) and calibrate thermal ROI thresholds.
+*   **Phase 4: Fusion & Integration** - Merge optical and thermal metrics into the Diagnostic Consensus Engine to output structured JSON telemetry (PASS, WARN, FAIL).
+*   **Phase 5: Field Testing** - Install the payload into the Valinor Dispatch dock and run full-cycle continuous tests to validate accuracy, latency, and reliability.
 
 ## Specific/Broad Implications
 
@@ -266,48 +266,46 @@ Affordability is the most impactful specific implication of Project D.R.A.G.O.N.
 Furthermore, this setup is highly adaptable. Because the system relies on universally adopted USB connections rather than proprietary hardware, it completely avoids vendor lock-in. If a camera breaks or needs an upgrade, an operator can simply swap it out. The system automatically recognizes the new device without requiring complex software updates or custom coding, ensuring seamless long-term maintenance.
 
 ### Broader Implications, Ethics, and Responsibility as Engineers
-As autonomous drones become common in logistics and public safety, mid-air mechanical failures pose a serious risk to people and property. Standard drone flight controllers cannot detect gradual physical wear. By using AI to catch mechanical issues—such as cracked propellers or failing motors—before a drone ever leaves the dock, this system actively prevents catastrophic crashes and improves public safety.
+As autonomous drones become common in logistics and public safety, mid-air mechanical failures pose a serious risk to people and property. Standard drone flight controllers cannot detect gradual physical wear. By using AI to catch mechanical issues"such as cracked propellers or failing motors"before a drone ever leaves the dock, this system actively prevents catastrophic crashes and improves public safety.
 
-Because this is a safety-critical system, the engineering team has a strict ethical responsibility to ensure the AI never makes a guess based on bad data. To prevent false alarms or missed defects, the software runs automated quality checks before every inspection; for example, if a camera lens is blurry or dirty, the system immediately aborts the process rather than risking a bad assessment. Finally, the system guarantees transparency. It merges the visual, thermal, and audio data into a simple "PASS, WARN, or FAIL" report, ensuring that human operators always retain absolute clarity and final authority over the health of their fleet.
+Because this is a safety-critical system, the engineering team has a strict ethical responsibility to ensure the AI never makes a guess based on bad data. To prevent false alarms or missed defects, the software runs automated quality checks before every inspection; for example, if a camera lens is blurry or dirty, the system immediately aborts the process rather than risking a bad assessment. Finally, the system guarantees transparency. It combines the visual and thermal results into a simple "PASS, WARN, or FAIL" report, ensuring that human operators always retain absolute clarity and final authority over the health of their fleet.
 
 ## References
-[1] Skydio, “Skydio X10 Flight Checklist.” [Online]. Available: https://support.skydio.com/hc/en-us/articles/25013300914203-Skydio-X10-Flight-Checklist
+[1] Skydio, "Skydio X10 Flight Checklist." [Online]. Available: https://support.skydio.com/hc/en-us/articles/25013300914203-Skydio-X10-Flight-Checklist
 
-[2] Skydio, “The Future Of Scalable, Autonomous Flight And Data Capture Is Here With Dock For X10.” [Online]. Available: https://www.skydio.com/blog/dock-for-x10-future-scalable-autonomous-flight-data-capture
+[2] Skydio, "The Future Of Scalable, Autonomous Flight And Data Capture Is Here With Dock For X10." [Online]. Available: https://www.skydio.com/blog/dock-for-x10-future-scalable-autonomous-flight-data-capture
 
-[3] K. Roth et al., “Towards Total Recall in Industrial Anomaly Detection,” Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition, pp. 14318–14328, 2022. [Online]. Author manuscript available: https://arxiv.org/abs/2106.08265
+[3] K. Roth et al., "Towards Total Recall in Industrial Anomaly Detection," Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition, pp. 14318-14328, 2022. [Online]. Author manuscript available: https://arxiv.org/abs/2106.08265
 
-[4] Anomalib maintainers, “Anomalib,” GitHub repository. [Online]. Available: https://github.com/open-edge-platform/anomalib
+[4] Anomalib maintainers, "Anomalib," GitHub repository. [Online]. Available: https://github.com/open-edge-platform/anomalib
 
-[5] Anomalib maintainers, “PatchCore,” Anomalib documentation. [Online]. Available: https://anomalib.readthedocs.io/en/latest/markdown/guides/reference/models/image/patchcore.html
+[5] Anomalib maintainers, "PatchCore," Anomalib documentation. [Online]. Available: https://anomalib.readthedocs.io/en/latest/markdown/guides/reference/models/image/patchcore.html
 
-[6] Teledyne FLIR, “Thermal Imaging for Data Centers,” technical note. [Online]. Available: https://www.flir.com/contentassets/5f4aa9d1ef5a439da25b0c91333e83fe/flir-thermal-imaging-for-datacenters-tech-note.pdf
+[6] Teledyne FLIR, "Thermal Imaging for Data Centers," technical note. [Online]. Available: https://www.flir.com/contentassets/5f4aa9d1ef5a439da25b0c91333e83fe/flir-thermal-imaging-for-datacenters-tech-note.pdf
 
-[7] USB Implementers Forum, “USB Device Class Definition for Video Devices, Version 1.5.” [Online]. Available: https://www.usb.org/document-library/video-class-v15-document-set
+[7] USB Implementers Forum, "USB Device Class Definition for Video Devices, Version 1.5." [Online]. Available: https://www.usb.org/document-library/video-class-v15-document-set
 
-[8] OpenCV, “Camera Calibration and 3D Reconstruction.” [Online]. Available: https://docs.opencv.org/5.0/tutorials/calib3d/camera_calibration/camera_calibration.html
+[8] OpenCV, "Camera Calibration and 3D Reconstruction." [Online]. Available: https://docs.opencv.org/5.0/tutorials/calib3d/camera_calibration/camera_calibration.html
 
-[9] Teledyne FLIR OEM, “Radiometry with Lepton.” [Online]. Available: https://oem.flir.com/learn/thermal-integration-made-easy/radiometry-with-lepton/
+[9] Teledyne FLIR OEM, "Radiometry with Lepton." [Online]. Available: https://oem.flir.com/learn/thermal-integration-made-easy/radiometry-with-lepton/
 
-[10] International Organization for Standardization, “ISO 12233:2024 — Digital Cameras — Resolution and Spatial Frequency Responses.” [Online]. Available: https://www.iso.org/standard/88626.html
+[10] International Organization for Standardization, "ISO 12233:2024 - Digital Cameras - Resolution and Spatial Frequency Responses." [Online]. Available: https://www.iso.org/standard/88626.html
 
-[11] International Organization for Standardization, “ISO 15739:2023 — Photography — Electronic Still-Picture Imaging — Noise Measurements.” [Online]. Available: https://www.iso.org/standard/82233.html
+[11] International Organization for Standardization, "ISO 15739:2023 - Photography - Electronic Still-Picture Imaging - Noise Measurements." [Online]. Available: https://www.iso.org/standard/82233.html
 
-[12] USB Implementers Forum, “USB Video Class v1.5 Specification.” [Online]. Available: https://www.usb.org/document-library/video-class-v15-document-set
+[12] USB Implementers Forum, "USB Video Class v1.5 Specification." [Online]. Available: https://www.usb.org/document-library/video-class-v15-document-set
 
-[13] USB Implementers Forum, “USB Device Class Definition for Audio Devices, Release 2.0.” [Online]. Available: https://www.usb.org/documents
+[15] International Electrotechnical Commission, "IEC 62368-1 - Audio/Video, Information and Communication Technology Equipment - Part 1: Safety Requirements." [Online]. Available: https://webstore.iec.ch/
 
-[15] International Electrotechnical Commission, “IEC 62368-1 — Audio/Video, Information and Communication Technology Equipment — Part 1: Safety Requirements.” [Online]. Available: https://webstore.iec.ch/
+[16] IEEE, "IEEE 7000-2021 - IEEE Standard Model Process for Addressing Ethical Concerns During System Design." [Online]. Available: https://standards.ieee.org/standard/7000-2021.html
 
-[16] IEEE, “IEEE 7000-2021 — IEEE Standard Model Process for Addressing Ethical Concerns During System Design.” [Online]. Available: https://standards.ieee.org/standard/7000-2021.html
+[17] International Electrotechnical Commission, "IEC 62443-4-1:2018 - Security for Industrial Automation and Control Systems - Part 4-1: Secure Product Development Lifecycle Requirements." [Online]. Available: https://webstore.iec.ch/
 
-[17] International Electrotechnical Commission, “IEC 62443-4-1:2018 — Security for Industrial Automation and Control Systems — Part 4-1: Secure Product Development Lifecycle Requirements.” [Online]. Available: https://webstore.iec.ch/
+[18] Electronic Code of Federal Regulations, "14 CFR § 107.15 - Condition for safe operation." [Online]. Available: https://www.ecfr.gov/current/title-14/chapter-I/subchapter-F/part-107/subpart-B/section-107.15
 
-[18] Electronic Code of Federal Regulations, “14 CFR § 107.15 — Condition for safe operation.” [Online]. Available: https://www.ecfr.gov/current/title-14/chapter-I/subchapter-F/part-107/subpart-B/section-107.15
+[19] M. S. Harras, S. Saleh, B. Battseren, and W. Hardt, "Vision-based Propeller Damage Inspection Using Machine Learning," Embedded Selforganising Systems, vol. 10, no. 7, 2023. [Online]. Available: https://www.bibliothek.tu-chemnitz.de/ojs/index.php/cs/article/view/604
 
-[19] M. S. Harras, S. Saleh, B. Battseren, and W. Hardt, “Vision-based Propeller Damage Inspection Using Machine Learning,” Embedded Selforganising Systems, vol. 10, no. 7, 2023. [Online]. Available: https://www.bibliothek.tu-chemnitz.de/ojs/index.php/cs/article/view/604
-
-[20] M. D. Rice et al., “Automated Multi-Camera Inspection System for Aircraft,” Proceedings of the AAAI Conference on Artificial Intelligence, vol. 40, no. 48, 2026. [Online]. Available: https://doi.org/10.1609/aaai.v40i48.42378
+[20] M. D. Rice et al., "Automated Multi-Camera Inspection System for Aircraft," Proceedings of the AAAI Conference on Artificial Intelligence, vol. 40, no. 48, 2026. [Online]. Available: https://doi.org/10.1609/aaai.v40i48.42378
 
 Note: References [10] and [11] are official standard listings; full-text access may require purchase or Tennessee Tech library access. USB-IF specifications are available through its document library.
 
