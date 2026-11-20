@@ -345,7 +345,7 @@ This is an inspection aid, not an aircraft airworthiness certification device. A
 | ID | System-level **shall** statement | Design basis |
 |---|---|---|
 | SYS-03 | The system **shall** acquire usable thermal measurements from designated visible surface regions before reporting their thermal status. | Thermal team concept; applicable regions depend on validated geometry [5][6][13] |
-| SYS-04 | The system **shall** coordinate lighting and capture so accepted RGB images are taken under a known lighting mode with stable exposure. | Lighting/camera repeatability [7][12][11][32] |
+| SYS-04 | The system **shall** record the lighting mode for each accepted RGB image and accept only frames captured after that mode settles. In the repeatability test, each required view **shall** keep the mean brightness of a fixed gray patch within **±5% of that view’s 10-cycle mean** across 10 independent light off/on cycles. | Proposed lighting/camera acceptance limit for Valinor review; test method in §4.3. [7][12][11][32] |
 | SYS-05 | The system **shall** run the primary inspection without requiring continuous internet access. | Edge-processing design objective [3][9] |
 | SYS-06 | The system **shall** provide per-component and overall `PASS`, `WARN`, `FAIL`, or `UNVERIFIED` results with machine-readable reason codes. | Pilot/operator and maintenance requirement; adopted team reporting contract |
 | SYS-07 | The system **shall not** issue an overall `PASS` if any mandatory check is invalid, missing, or unverified. | Safety requirement; adopted conservative status policy |
@@ -818,8 +818,32 @@ This section decomposes the concept into implementable subsystems. Each subsecti
 
 **Verification:** Dimensioned photographs/CAD clearance review, power-on measurements, disconnect/fault tests, dock abort test, and unchanged baseline docking function.
 
-### 4.2 RGB camera hardware and acquisition
 
+#### 4.1.1 Detailed design: inspection power budget
+
+This budget estimates simultaneous inspection loads with both LED strips at full brightness. The values are design estimates; startup and peak currents still need to be measured. The team’s [compute research](Research%20of%20Subsystems/ML_Condensed_Research.md) identifies the Jetson Orin NX 16GB. The 10–25 W range assumes selected module power modes and excludes the carrier, fan and peripherals. Confirm the installed mode and revise the budget if a higher mode is enabled ([NVIDIA power-mode table](https://docs.nvidia.com/jetson/archives/r36.4.4/DeveloperGuide/SD/PlatformPowerAndPerformance/JetsonOrinNanoSeriesJetsonOrinNxSeriesAndJetsonAgxOrinSeries.html)).
+
+| Inspection load | Quantity | Low (W total) | High (W total) | Basis |
+|---|---:|---:|---:|---|
+| Jetson Orin NX 16GB module | 1 | 10 | 25 | Assumed module power modes. |
+| RGB cameras on powered USB hub | 4 | 6 | 10 | Allow 1.5–2.5 W per camera; verify at startup and capture. |
+| Thermal camera and USB interface | 1 set | 1 | 1 | Provisional allowance for the Lepton and PureThermal board together. |
+| 12 V white LED strips | 2 × 1 m | 20 | 20 | Each strip draws 10 W at full brightness [7]. |
+| Powered USB hub electronics | 1 | 1 | 2 | Hub overhead only; connected devices are counted separately. |
+| Spare USB accessory allowance | 0–1 | 0 | 2.5 | Reserve from the workbook; no microphone is required. |
+| Jetson carrier, fan and lighting controls | 1 set | 2 | 4 | Provisional allowance; verify on selected hardware. |
+| **Total at inspection devices** | | **40** | **64.5** | Excludes charging, dock motors and other existing loads. |
+| **Estimated draw across both dock supplies** | | **47.1** | **75.9** | Device total divided by 0.85, assuming 85% overall conversion efficiency. |
+
+**USB hub sizing.** The high case is 10 W for the RGB cameras, 1 W for the thermal camera and interface, 2 W for the hub and 2.5 W of spare capacity: **15.5 W total**. Adding 20% gives **18.6 W, or 3.72 A at 5 V**. The planned 5 V/4 A supply provides 20 W. Verify that the hub can supply the required current both overall and at each port.
+
+**Lighting branch.** Each 1 m strip draws about **0.83 A at 12 V**. Together they draw **1.67 A (20 W)**. The dock powers the strips through one driver per strip [7][12]; the Jetson only sends control signals. Request a regulated **12 V, 3 A** branch. Its 36 W rating is available capacity, not an additional load. If the dock provides regulated 12 V with enough spare current, no buck converter is needed for the strips. If the assigned rail is above 12 V, use a buck converter rated to deliver at least 3 A continuously at 12 V under dock operating conditions.
+
+**Dock supply check.** The design assumes the Jetson stays on its existing supply and the peripherals use a protected **12 V, 5 A (60 W)** auxiliary feed. With the LEDs powered directly at 12 V and an assumed 85% efficiency for the hub converter, the lights and fully loaded hub draw an estimated **20 + 15.5/0.85 = 38.2 W**, or **3.19 A at 12 V**. That leaves an estimated **21.8 W** on the auxiliary feed for controls and transient loads. The 75.9 W estimate in the table covers both supplies combined.
+
+**Verification before integration.** Valinor confirmed that the dock supplies equipment at several voltages. Confirm the assigned connector, voltage range, protection and available continuous and peak current while other dock equipment is operating. Measure the dock input, hub input and each LED branch at startup and with all inspection loads active, including a thermal calibration cycle. Record the voltage at each load and the highest current observed. Update the budget and verify that the hub retains at least 20% margin above the higher of the estimated or measured peak demand.
+
+### 4.2 RGB camera hardware and acquisition
 **Function:** Provide four upper-corner component views—each responsible for a singular drone quadrant with centerline overlap (`3–4 in` above the drone's upper plane)—and repeatable high-resolution still capture. [11][32]
 
 | Inputs | Outputs | Interfaces / protocols | Design values |
@@ -860,6 +884,9 @@ This section decomposes the concept into implementable subsystems. Each subsecti
 **Functional sequence:** `Read permitted inspection state → select thermal OFF mode → request GENERAL → wait for stable capture condition → acquire RGB frames → optionally set DIRECTIONAL and repeat selected views → switch OFF.`
 
 **Verification:** Lux/relative-intensity map or fixed-exposure reference images, known-defect contrast experiment, camera banding check, supply-current and driver-temperature measurements, lights-fail-off test.
+**SYS-04 exposure repeatability test (proposed).** Place a matte gray target at a representative component position in each required RGB view. Mark the patch used for measurement; keep ambient light and camera position fixed and lock exposure, gain and white balance. For each lighting mode used to accept images, run 10 independent off/on cycles. After each enable, allow the light to settle, discard buffered frames and save one fresh frame per view. Use the same patch and brightness scale in every frame; a clipped, missing or unreadable patch invalidates the trial.
+
+For each camera and mode separately, calculate the patch’s mean pixel brightness in each frame and average those 10 values. **Pass only if all 10 values fall between 0.95 and 1.05 times that average.** For example, for a 10-cycle mean of 120, every reading must be between 114 and 126. Record camera ID, mode, settings and all 10 readings so the result can be checked. This is a bench acceptance test; the ±5% limit is proposed for Valinor review.
 
 ### 4.4 Thermal imaging and surface-temperature adapter
 
