@@ -1,4 +1,4 @@
-
+﻿
 # F26_Team-6_Project_D.R.A.G.O.N.N.
 
 ## Introduction
@@ -27,7 +27,7 @@ $$\text{Variance} = \frac{1}{N} \sum_{x,y} \left( \nabla^2 I(x,y) - \mu \right)^
 
 If this variance drops below a hardcoded threshold, the image is flagged as blurry, and the inspection is aborted before wasting edge compute resources. Therefore, the project aims to strictly control the image-capture conditions and verify image quality before applying machine-learning or anomaly-detection methods.
 
-The project is intended to remain portable across future drone models and computing platforms. The first prototype may use a particular embedded computer or camera, but the architecture should not require one vendor's product to remain functional. USB Video Class cameras, Ethernet, MIPI, SPI, or supported adapter boards can be used where appropriate. Camera acquisition, sensor preprocessing, machine-learning inference, decision logic, storage, and dock communication are designed to remain separate enough that one layer can be changed without rewriting the full system.
+The prototype camera baseline is four Arducam B0471C enclosed, motorized-focus USB 3.0 cameras using Sony IMX519 16 MP sensors (`4656 × 3496`, 65° horizontal and 51° vertical field of view) and USB Video Class (UVC). The selected product listing specifies up to 80 fps at 720p; Arducam lists YUY2 capture up to 50 fps at 1080p and 8 fps at full 16 MP resolution. Its focus can be programmed from 10 cm to infinity, although the default range is 3 m to infinity, so close focus and focus control must be verified at the prototype's working distances. Each camera is assigned to an upper drone quadrant with overlap at the centerlines. The selected USBGear USBG-BREC304 four-port USB 3.2 Gen 1 powered hub carries the four RGB cameras; the FLIR PureThermal 3 interface uses a separate available host USB port. The IMX519 is the selected prototype camera, not a fixed long-term platform requirement: each camera shall connect through a replaceable module and documented interface so a newer or better camera can be adopted without redesigning the inspection system, provided it meets the coverage, focus, sampling, bandwidth, power, and host-compatibility requirements and passes recalibration and verification. Camera acquisition, sensor preprocessing, machine-learning inference, decision logic, storage, and dock communication remain modular so future hardware can be evaluated without rewriting the full system. [21][22]
 
 ## Preliminary Specifications
 The following specifications define the initial problem boundaries. Numerical limits will be finalized after the team receives the drone geometry, dock dimensions, inspection-time requirement, environmental range, and acceptance criteria from the sponsor.
@@ -51,8 +51,8 @@ The following specifications define the initial problem boundaries. Numerical li
 -	The system shall detect unusable frames caused by blur, obstruction, saturation, insufficient illumination, missing data, or incorrect camera state.
 -	Visible captures shall be synchronized with the inspection sequence so that dock motion, lighting transitions, or thermal capture do not corrupt the measurement.
 - The camera subsystem shall achieve a target image sampling density of **5 pixels/mm** throughout each designated inspection region.
-- The camera array shall cover the drone's top surface and four vertical sides, with minimal overlap between adjacent views where practical.
-- The camera subsystem shall support completion of the overall inspection cycle within **10 seconds**.
+- The four-camera array shall cover the designated upper inspection regions from upper-corner mounts, with centerline overlap where needed to avoid blind spots; actual visibility and sampling shall be checked on the prototype airframe. [21]
+- The camera subsystem shall support sequential capture through the selected four-port USBGear USBG-BREC304 hub. The four downstream USB-A ports are allocated to the RGB cameras; the thermal interface requires a separate available host USB port. Capture duration shall be measured against the overall inspection-cycle target. [22]
 ### Thermal Imaging
 -	The thermal subsystem shall capture data with the visible inspection lights off unless testing demonstrates that the lighting system does not alter the required thermal measurement.
 -	Thermal data shall be captured after a defined post-docking interval and shall include the elapsed time since landing or motor shutdown.
@@ -89,7 +89,7 @@ The following specifications define the initial problem boundaries. Numerical li
 -	The training process may occur on a more powerful desktop computer or cloud GPU. The final trained model will then be exported and deployed onto the embedded computer.
 
 ### Electrical Integration and Communications
--	Imaging, lighting, processing, and actuator loads shall use appropriately protected power branches.
+-	Imaging, lighting, processing, and actuator loads shall use appropriately protected power branches. The selected USBGear USBG-BREC304 hub is supplied from 5 V/2 A (10 W); its four downstream ports support up to 900 mA each. Measure peak hub input power with all four cameras active and maintain at least 20% supply margin (no more than 8 W / 1.6 A at 5 V). Use the supplied adapter only where an approved AC source is available; otherwise use a protected, regulated 12 V-to-5 V converter rated for at least 2 A, with connector and polarity verified. [22]
 -	Supply and return conductors shall be routed together to reduce loop area, and sensitive data or camera-power cables shall be separated from motors, solenoids, chargers, and other switching loads.
 -	Cable shields and enclosure bonds shall be terminated using short, low-impedance connections consistent with the selected interface and equipment guidance.
 -	The system shall use the cable type, maximum length, shielding, termination, and connector requirements specified for each communication interface.
@@ -212,21 +212,25 @@ video pipeline.
 
 
 ## Resources
-The proposed system requires a combination of both commercial hardware and open-source software to accomplish the automated drone analysis. The main hardware required includes a UVC camera array to detect visual flaws and a thermal imaging camera to detect temperature anomalies. These sensors complement each other to give a comprehensive diagnostic analysis of the docked drone.
+The prototype uses four Arducam B0471C enclosed, motorized-focus 16 MP IMX519 USB 3.0 UVC cameras for visible inspection and one FLIR Lepton 3.5 with a PureThermal 3 interface for thermal measurements. The RGB cameras connect to a USBGear USBG-BREC304 four-port powered hub; the thermal interface connects to a separate host USB port. These selected devices are a project baseline, with working-distance focus, USB bandwidth, and power margin to be verified during integration. [21][22]
 
-A suitable board will be used to perform image processing, machine-learning, and analysis of sensor data. A separate, more powerful, desktop computer may also be used for AI development and training before it is deployed to the main system. Adequate storage will also be required to keep sensor data, training datasets, and flags. Open-source machine learning and image processing software will be used to develop and train the AI models, and publicly available datasets may also be used to supplement data collected during testing.
+The current design baseline reuses the existing NVIDIA Jetson Orin NX 16 GB as the inspection processor, subject to verification of the installed software stack and available resources. The project budget therefore assigns no incremental purchase cost to the compute unit. A separate desktop computer may be used for model development and training. Local storage will hold inspection evidence and logs; open-source machine-learning and image-processing tools will support development, subject to a license review before transfer.
 
 ### Budget Document
 
-| Item                                                        | Estimated Price ($) |
-| :---------------------------------------------------------- | :------------------ |
-| Quad-Camera UVC Array (8MP-12MP CS-Mount)                   | $503.96              |
-| Thermal Imager (FLIR Lepton 3.5 & PureThermal Board)        | $600                 |
-| Edge Compute Unit                                           | $500                 |
-| Powered USB 3.0 Hub (for sequential data orchestration)     | $30                  |
-| Controlled Lighting (COB LED strips, diffusers, polarizers) | $100                 |
-| Mounting Hardware, Enclosures, & Wiring                     | $150                 |
-| **Total**                                                   | **$1,380**           |
+| Item | Estimated Price ($) |
+| :--- | ---: |
+| Four Arducam B0471C enclosed, motorized-focus 16 MP Sony IMX519 USB 3.0 UVC cameras ($125.99 each, listing snapshot) [21] | $503.96 |
+| FLIR Lepton 3.5 and PureThermal 3 interface | $284.00 |
+| Existing NVIDIA Jetson Orin NX 16 GB | $0 incremental |
+| USBGear USBG-BREC304 four-port USB 3.2 Gen 1 powered hub [22] | $25.99 |
+| LED strips, switching boards, lighting supply, diffusers, and fixture brackets | $111.80–$186.80 |
+| Camera brackets, USB-C-to-Type-A data cables, wiring, and protected DC conversion | $70.00–$140.00 |
+| **Mandatory prototype subtotal** | **$995.75–$1,140.75** |
+| 15% planning reserve | $149.36–$171.11 |
+| **Planning budget including reserve** | **$1,145.11–$1,311.86** |
+
+The camera price is the $125.99-per-unit listing shown in the supplied product screenshot and is a price snapshot; confirm the live price and exact enclosed-camera variant at procurement. The hub amount is a planning estimate. Record actual order prices at procurement. The four hub ports serve the RGB cameras, and the PureThermal 3 interface requires a separate host USB port. Measure peak hub input power and retain at least 20% margin on its 5 V/2 A supply. The detailed BOM and assumptions govern the subsystem cost ranges; revise the estimate if supplier pricing or client-furnished equipment changes. [21][22]
 
 ## Personnel
 Team 6 consist of members whose experience and expertise covers hardware integration, programming, and technical writing. Individual skills as follows:
@@ -306,6 +310,10 @@ Because this is a safety-critical system, the engineering team has a strict ethi
 [19] M. S. Harras, S. Saleh, B. Battseren, and W. Hardt, "Vision-based Propeller Damage Inspection Using Machine Learning," Embedded Selforganising Systems, vol. 10, no. 7, 2023. [Online]. Available: https://www.bibliothek.tu-chemnitz.de/ojs/index.php/cs/article/view/604
 
 [20] M. D. Rice et al., "Automated Multi-Camera Inspection System for Aircraft," Proceedings of the AAAI Conference on Artificial Intelligence, vol. 40, no. 48, 2026. [Online]. Available: https://doi.org/10.1609/aaai.v40i48.42378
+
+[21] Arducam, *B0471 16 MP IMX519 USB 3.0 Camera Module Datasheet* and B0471/B0471C product information (motorized focus; B0471C enclosed variant). [Online]. Available: https://www.arducam.com/downloads/datasheet/B0471_16MP_IMX519_USB3.0_Camera_Datasheet.pdf and https://www.arducam.com/blog/product/arducam-16mp-imx519-motorized-focus-usb-3-0-camera-module/.
+
+[22] USBGear, *USBG-BREC304 4-Port USB 3.2 Gen 1 Powered Hub*. [Online]. Available: https://www.usbgear.com/usbg-brec304.html.
 
 Note: References [10] and [11] are official standard listings; full-text access may require purchase or Tennessee Tech library access. USB-IF specifications are available through its document library.
 
