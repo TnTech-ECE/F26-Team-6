@@ -220,13 +220,13 @@ A suitable board will be used to perform image processing, machine-learning, and
 
 | Item                                                        | Estimated Price ($) |
 | :---------------------------------------------------------- | :------------------ |
-| Quad-Camera UVC Array (8MP-12MP CS-Mount)                   | $503.96                |
-| Thermal Imager (FLIR Lepton 3.5 & PureThermal Board)        | $600                |
-| Edge Compute Unit                                           | $500                |
-| Powered USB 3.0 Hub (for sequential data orchestration)     | $30                 |
-| Controlled Lighting (COB LED strips, diffusers, polarizers) | $100                |
-| Mounting Hardware, Enclosures, & Wiring                     | $150                |
-| **Total**                                                   | **$1,380**          |
+| Quad-Camera UVC Array (8MP-12MP CS-Mount)                   | $503.96              |
+| Thermal Imager (FLIR Lepton 3.5 & PureThermal Board)        | $600                 |
+| Edge Compute Unit                                           | $500                 |
+| Powered USB 3.0 Hub (for sequential data orchestration)     | $30                  |
+| Controlled Lighting (COB LED strips, diffusers, polarizers) | $100                 |
+| Mounting Hardware, Enclosures, & Wiring                     | $150                 |
+| **Total**                                                   | **$1,380**           |
 
 ## Personnel
 Team 6 consist of members whose experience and expertise covers hardware integration, programming, and technical writing. Individual skills as follows:
