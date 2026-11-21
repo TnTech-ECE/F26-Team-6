@@ -220,13 +220,13 @@ A suitable board will be used to perform image processing, machine-learning, and
 
 | Item                                                        | Estimated Price ($) |
 | :---------------------------------------------------------- | :------------------ |
-| Quad-Camera UVC Array (8MP-12MP CS-Mount)                   | $503.96                |
-| Thermal Imager (FLIR Lepton 3.5 & PureThermal Board)        | $600                |
-| Edge Compute Unit                                           | $500                |
-| Powered USB 3.0 Hub (for sequential data orchestration)     | $30                 |
-| Controlled Lighting (COB LED strips, diffusers, polarizers) | $100                |
-| Mounting Hardware, Enclosures, & Wiring                     | $150                |
-| **Total**                                                   | **$1,380**          |
+| Quad-Camera UVC Array (8MP-12MP CS-Mount)                   | $503.96              |
+| Thermal Imager (FLIR Lepton 3.5 & PureThermal Board)        | $600                 |
+| Edge Compute Unit                                           | $500                 |
+| Powered USB 3.0 Hub (for sequential data orchestration)     | $30                  |
+| Controlled Lighting (COB LED strips, diffusers, polarizers) | $100                 |
+| Mounting Hardware, Enclosures, & Wiring                     | $150                 |
+| **Total**                                                   | **$1,380**           |
 
 ## Personnel
 Team 6 consist of members whose experience and expertise covers hardware integration, programming, and technical writing. Individual skills as follows:
@@ -332,7 +332,7 @@ Note: References [10] and [11] are official standard listings; full-text access 
 
 Valinor's Dispatch dock houses a drone between flights. A drone may return with a missing or damaged propeller, surface damage, loose or missing hardware, or an unusually warm component. A conventional camera cannot directly measure surface temperature, and a thermal camera cannot resolve all of the small visible features. The proposed project adds a coordinated inspection system inside the dock to gather visible and thermal measurements, evaluate the components that can actually be observed, and provide a documented maintenance-oriented result. [3][5][7][9][11] [41]
 
-The selected concept uses four upper-corner-mounted **16 MP Sony IMX519 USB 3.0 Type-A** Video Class (UVC) cameras—each assigned to inspect a single drone quadrant with centerline overlap—controllable white LED lighting, one FLIR Lepton 3.5 with a PureThermal 3 interface, an externally powered industrial USB 3.0 hub, and the existing NVIDIA Jetson Orin NX 16 GB computing module. The primary processing order is dock authorization → thermal capture with visible lights off → controlled-light RGB capture → image-quality checks → component and thermal measurements → decision-level fusion → report and log. The dock controller, rather than the AI model, remains responsible for flight permission, charging controls, and safety interlocks. [3][5][7][9][11][32]
+The selected concept uses four upper-corner-mounted **Arducam B0471C enclosed 16 MP Sony IMX519 USB 3.2 Gen 1 UVC cameras**—each assigned to inspect one drone quadrant with centerline overlap—controllable white LED lighting, one FLIR Lepton 3.5 with a PureThermal 3 interface, a **USBGear USBG-BREC304 four-port USB 3.2 Gen 1 hub** (Amazon ASIN B012DZ4NJ8), and the existing NVIDIA Jetson Orin NX 16 GB. The four hub ports are allocated to the RGB cameras; connect the PureThermal interface to a separate available Jetson host USB port. If no separate port is available, revise the hub architecture before integration. The primary processing order is dock authorization → thermal capture with visible lights off → controlled-light RGB capture → image-quality checks → component and thermal measurements → decision-level fusion → report and log. The dock controller, rather than the AI model, remains responsible for flight permission, charging controls, and safety interlocks. [3][5][7][9][11][32][47][60]
 
 This is an inspection aid, not an aircraft airworthiness certification device. A component outside the cameras' field of view, an untested defect type, or unreliable sensor data must be reported as an inspection limitation; a model's confidence score does not prove that a drone is safe to fly. [3][9][1]
 
@@ -395,10 +395,10 @@ The dock controller is an interfacing subsystem rather than a person or organiza
 | Mandatory RGB regions | **Four propellers, four motor housings, four arms, upper fuselage, upper battery casing — 14 named positions** | The test configuration maps every required position to a camera quadrant; landing gear, individual fasteners, and fine cracks/chips are nonmandatory research observations until separately validated. |
 | Mandatory thermal region | **One visible top battery-housing region**, captured with the dock in a non-charging, post-flight inspection state | The single Lepton is not required to image every motor. Additional visible thermal regions may be logged as supplemental, but an invalid mandatory battery ROI prevents `PASS`. |
 | Edge computer | Existing **NVIDIA Jetson Orin NX 16 GB**, mounted on the dock backplate; no additional compute purchase | The selected prototype software baseline is **JetPack 6.1 + DeepStream 7.1**, with the CUDA and TensorRT versions supplied through the compatible NVIDIA software stack. The inspection service shall operate separately from proprietary dock-control software. This baseline is a project design assumption, not confirmation of the currently installed software. The team shall verify installed versions, available memory, GPU utilization, and dock-control timing before deployment. [9][21] |
-| RGB hardware | Four **Arducam B0471 16 MP Sony IMX519 USB 3.0 UVC cameras**, with `4656 × 3496` native resolution, `65°` horizontal and `51°` vertical field of view, and motorized focus | The selected camera uses a USB-C connector and shall connect to the powered USB 3.0 Type-A hub through a compatible USB-C-to-Type-A USB 3.0 data cable. The manufacturer lists full-resolution YUY2 capture at 8 fps. The team shall verify the delivered SKU, camera focus, USB bandwidth, and `5 px/mm` sampling target using installed hardware. [47] |
+| RGB hardware | Four **Arducam B0471C enclosed 16 MP Sony IMX519 USB 3.2 Gen 1 UVC cameras**, with `4656 × 3496` native resolution and `65°` horizontal / `51°` vertical field of view | The B0471C is the cased variant of Arducam’s B0471. Each camera has a USB-C connector and connects to one of the hub’s USB-A downstream ports through a USB 3 data cable. Arducam lists full-resolution YUY2 capture at 8 fps and up to 1.48 W. Its datasheet lists a 3 m–∞ default focus range; because inspection distances are sub-meter, verify close-focus and UVC/V4L2 focus control at the required working distances before accepting the camera baseline. Verify the cased SKU, enclosure clearance, USB bandwidth, and `5 px/mm` sampling target with installed hardware. [47]
 | Thermal hardware | One FLIR Lepton 3.5 (`160 × 120`, ~`57°` HFOV) and PureThermal 3 USB adapter | A top-oriented mount and 12 in nominal stand-off target the designated battery-housing region. Radiometric mode, unit scale, and emissivity require calibration before results are considered valid. [5][6][13] |
 | Lighting | Two opposed **1 m, 12 V, 10 W/m** diffused white LED strips with independent switching | The combined nominal lighting load is **20 W**, or approximately **1.67 A at 12 V**. A regulated 12 V/3 A lighting branch supplies both strips through separately rated switching devices. Each strip draws approximately 0.83 A under the nominal design assumption. Actual current, connector ratings, switching behavior, glare, and thermal loading shall be tested. [7][12] |
-| Available auxiliary power | One protected **12 V/5 A (60 W)** dock auxiliary feed dedicated to inspection peripherals; the Jetson remains powered by the dock's existing supply | The assumed 60 W feed supports the **20 W LED load** and a separate **12 V-to-5 V, 4 A-rated converter** for the powered USB hub. The converter provides up to 20 W output capacity. Four cameras require approximately 5.92 W at the manufacturer's listed maximum, with an additional allowance for the PureThermal interface and hub overhead. Branch ratings are maximum capacities, not simultaneous expected consumption. Protection, converter efficiency, cable ratings, and available dock power shall be verified before installation. [7][12][47] |
+| Available auxiliary power | One protected **12 V/5 A (60 W)** dock auxiliary feed dedicated to inspection peripherals; the Jetson remains powered by the dock’s existing supply | The selected four-port USBGear hub (USBG-BREC304 / Amazon ASIN B012DZ4NJ8) has a **5 V/2 A (10 W)** supply and four USB-A downstream ports rated up to 900 mA each. All four ports are assigned to the RGB cameras; the PureThermal interface requires a separate host USB port. Four cameras draw up to **5.92 W combined** at the published 1.48 W maximum per camera. To retain 20% supply margin, measure the complete hub input and require no more than **8 W (1.6 A at 5 V)** during peak capture. Power the hub through the included adapter only if an approved AC source is available; otherwise use a protected, regulated 12 V-to-5 V converter rated for at least 2 A and verified connector polarity. [47][60]
 | Dock data interface | **Authenticated loopback HTTP/JSON** on `127.0.0.1:8765`, with a sponsor-side caller/authorization adapter | The team develops the inspection service and mock dock adapter without receiving proprietary dock code; the integration boundary requires only an externally implemented request/heartbeat client. |
 | Evidence storage | **64 GB available local allocation**, 20 inspections/day, **25 MB retained evidence/inspection**, **30-day retention** | Expected retained evidence is ~15 GB per month; reserve additional space for indexes, logs, software, and fault recovery. Full-storage conditions prevent a false `PASS`. |
 
@@ -423,7 +423,7 @@ Each comparison weighs inspection coverage, ease of integration, risk, developme
 
 **Single-Quadrant Coverage & Overlap Geometry:** Inside the $30"\text{ W} \times 40"\text{ L}$ enclosure, a centered $20" \times 20"$ drone sits $25.00\text{ in}$ ($635.0\text{ mm}$) diagonally from each corner ($\sqrt{20^2 + 15^2} = 25\text{ in}$), with its nearest motor/propeller corner approximately $11\text{ in}$ away. Each of the four corner cameras is assigned to inspect **one singular quadrant** of the drone—extending from its near corner out to the drone's centerlines—with intentional overlap at the center of the drone so no blind spots occur if the aircraft lands slightly off-center:
 
-* **Minimum Quadrant Angle vs. Overengineered Overlap Lens:** Framing just the two nearest quadrant centerlines (`(20", 5")` and `(10", 15")` from a box corner) requires a bare minimum angle of $\theta_{\min} = 90^\circ - \tan^{-1}(5/20) - \tan^{-1}(10/15) \approx 42.3^\circ$. By selecting the **16 MP Sony IMX519 USB 3.0 Type-A UVC** module (`4656(H) × 3496(V)`, `4.28 mm` EFL, `F1.75`, programmable focus `10 cm–∞`) with a **`65°` HFOV (`51°` VFOV)**, each camera covers `~819 mm` (`~32.26 in`) horizontally at the drone center—providing roughly **`9 in` (`~230 mm`) of redundant overlap** across the drone's centerlines. Although the `65°` cone extends optically past the center into the opposite half of the enclosure, high-resolution inspection is partitioned by quadrant so the opposite corner camera covers the far quadrant at close range.
+* **Minimum Quadrant Angle vs. Overengineered Overlap Lens:** Framing the two nearest quadrant centerlines, `(20 in, 5 in)` and `(10 in, 15 in)` from a box corner, requires a minimum horizontal field of view of `90° − atan(5/20) − atan(10/15) ≈ 42.3°`. The selected **Arducam B0471C enclosed 16 MP IMX519** (`4656 × 3496`, `4.28 mm` EFL, `F1.75`, `65°` HFOV / `51°` VFOV) covers about `819 mm` (`32.26 in`) horizontally at the drone center, providing about `9 in` of centerline overlap. It connects by USB-C to a Type-A hub port. Arducam lists autofocus and a `3 m–∞` default focus range in the B0471 datasheet; because the required distances are below `1 m`, verify close-focus behavior and software focus control on the exact B0471C before relying on the sampling calculation.
 * **Elevated Upper-Corner Mounting (`3–4 in` Above Drone):** Mounting the cameras near the top of the enclosure—**3 to 4 in above the drone's upper plane** and pitched downward at **`~14°–18°`** toward each quadrant's center—provides an oblique top-down view of the upper propeller surfaces, motor bells, and top fasteners while adding less than `0.35 in` to the `25.00 in` horizontal distance to the drone center (`25.18 in` slant at `3 in` elevation; **`25.32 in` / `643.1 mm` slant** at `4 in` elevation). Real usable field of view and vertical clearance on the nearest landing gear (`~11.40 in` slant distance) depend on tilt, lens distortion, and exact internal dock height (`12–16 in`), and shall be verified with the physical drone. [11][28][27]
 
 **Spatial Sampling & Maximum `5 pixels/mm` Reach (`1.0 mm` Main Feature Size):** Using the horizontal field-of-view relation $\text{Physical FOV (mm)} = 2 \times \text{WD} \times \tan(\theta_H / 2)$ with `4656` horizontal pixels and $\theta_H = 65^\circ$, the maximum working distance before pixel density drops below **`5 pixels/mm`** is:
@@ -448,7 +448,7 @@ $$
 
 These are sampling calculations, not proof of crack, chip, or scratch recognition. The effective detail level also depends on lens focus, perspective, glare, noise, output format (uncompressed YUY2 vs. compressed MJPEG), model input resizing, and any high-resolution crop analysis. The RGB team shall measure sampling at near, center, and quadrant-overlap locations using an ISO 12233 slanted-edge test target. The ML team shall determine the smallest defect size that can actually be classified under representative conditions.
 
-**Camera selection note:** The **16 MP Sony IMX519 USB 3.0 Type-A UVC** module (`4656 × 3496`, `65°` HFOV × `51°` VFOV, `~1.48 W` max per unit) is the baseline candidate for the four-camera array. Because it connects directly to standard USB 3.0 Type-A ports on the internal powered hub without adapters, supports full-resolution uncompressed YUY2 capture over USB 3.0 (`8 fps` at `4656 × 3496`, avoiding MJPEG compression blur on `1.0 mm` features), and offers UVC programmatic focus control (`10 cm–∞`), it replaces the legacy 12.3 MP IMX500 reference [4] (which also carried redundant on-sensor AI hardware). Exact vendor SKU and lens verification are logged prior to final ordering.
+**Camera selection note:** The **Arducam B0471C enclosed 16 MP Sony IMX519 USB 3.2 Gen 1 UVC** (`4656 × 3496`, `65°` HFOV × `51°` VFOV, up to `1.48 W` per unit) is the selected four-camera baseline. Its USB-C connector connects to the USBGear hub’s USB-A downstream ports with USB 3 data cables; it supports full-resolution YUY2 capture at `8 fps`. The manufacturer lists autofocus, but the datasheet’s `3 m–∞` default focus range does not demonstrate focus at this design’s sub-meter working distances. The team shall confirm close focus and UVC/V4L2 focus control on the exact cased SKU before acceptance. [4][47]
 
 
 ### 2.2 Lighting configuration
@@ -494,13 +494,13 @@ The AI and sensor architecture must balance detection quality and optical sampli
 
 #### RGB camera module alternatives
 
-| Camera Candidate | Spatial Sampling $\ge 5\text{ px/mm}$ (`SYS-14`, 30%) | USB 3.0 Type-A / UVC Reliability (`SYS-02`, 25%) | Focus & Optical Control (`SYS-04`, 20%) | Unit Cost & Power Efficiency (`SYS-17`, 15%) | Mechanical / Enclosure Fit (`SYS-17`, 10%) | Weighted score / 5 |
+| Camera Candidate | Spatial Sampling $\ge 5\text{ px/mm}$ (`SYS-14`, 30%) | USB 3.2 Gen 1 camera / Type-A hub / UVC (`SYS-02`, 25%) | Focus & Optical Control (`SYS-04`, 20%) | Unit Cost & Power Efficiency (`SYS-17`, 15%) | Mechanical / Enclosure Fit (`SYS-17`, 10%) | Weighted score / 5 |
 |---|---:|---:|---:|---:|---:|---:|
-| **16 MP Sony IMX519 USB 3.0 Type-A UVC** (`4656 × 3496`, `65°` HFOV) | 5 (`5.68 px/mm` at center; `5 px` per `1.0 mm` out to `28.77 in`) | 5 (Native UVC/V4L2, Type-A, YUY2) | 5 (Motorized UVC focus `10 cm–∞`) | 4 (`~$110–$130`, `1.48 W` max) | 4 (Compact board + M12 lens) | **4.75** |
+| **Arducam B0471C enclosed, 16 MP IMX519 USB 3.2 Gen 1 Type-C** (`4656 × 3496`, `65°` HFOV) | 5 (`5.68 px/mm` at center; `5 px` per `1.0 mm` out to `28.77 in`) | 5 (UVC/YUY2 through USB-C-to-Type-A data cable) | 3 (autofocus; verify close focus at required distance) | 4 (`~$145` list-price estimate; `1.48 W` max) | 4 (cased module; clearance to verify) | **4.35** |
 | **12.3 MP Sony IMX477 USB 3.0 UVC** (`4056 × 3040`, `59°–65°` HFOV) | 4 (`4.95–5.56 px/mm` at center) | 5 (Native UVC/V4L2) | 3 (Manual ring focus lock required) | 4 (`~$110–$130`) | 4 (Standard 38 mm board) | **4.10** |
 | **12.3 MP Sony IMX500 Module** [4] | 4 (`5.56 px/mm` at center) | 2 (Requires USB bridge / MIPI) | 3 (Fixed/manual lens) | 2 (Pays for redundant on-chip AI) | 3 (Interface adapter overhead) | **2.90** |
 
-The **16 MP Sony IMX519 USB 3.0 Type-A UVC** module scores highest (`4.75 / 5.00`) because its `4656`-pixel horizontal resolution clears the `5 pixels/mm` target across each camera's entire assigned quadrant (`5.68 pixels/mm` at the `25.32 in` drone center, resolving a `1.0 mm` target feature across `5 pixels` out to `28.77 in`) even with a wide `65°` centerline-overlap lens, connects directly to USB 3.0 Type-A hub ports without adapters, supports uncompressed YUY2 transfer, and eliminates paying for redundant on-sensor AI silicon.
+The **Arducam B0471C enclosed 16 MP IMX519** scores highest (`4.35 / 5.00`) because its `4656`-pixel horizontal resolution clears the `5 pixels/mm` target across the assigned quadrant (`5.68 pixels/mm` at the `25.32 in` drone center, resolving a `1.0 mm` target feature across `5 pixels` out to `28.77 in`). Its USB-C interface connects to the USBGear hub’s Type-A ports with standard USB 3 data cables. The selected hub has exactly four downstream ports, so the four RGB cameras use all of them and the PureThermal interface must use a separate Jetson host port. Close-range focus at the actual `11.40–25.32 in` inspection distances and the cased camera’s mounting clearance remain acceptance checks; the manufacturer’s listed default focus range does not establish performance at those distances. [47][60]
 
 #### Object detector alternatives
 
@@ -545,7 +545,7 @@ Next, the software undistorts and maps the valid RGB images, runs the component 
 
 ### 3.1 Hardware block diagram
 
-Each physical block below is a distinct hardware or dock subsystem. Solid arrows show required signals and power across the 5 active USB sensor endpoints (4 quadrant RGB cameras + 1 thermal imager).
+Each physical block below is a distinct hardware or dock subsystem. Solid arrows show required power and data connections; four RGB cameras connect through the four-port hub, while the thermal interface uses a separate Jetson host USB port.
 
 ```mermaid
 flowchart LR
@@ -554,9 +554,9 @@ flowchart LR
     LP["12V lighting supply"]
     SW["Two independently controlled LED switches"]
     LED["Diffused white LED fixtures"]
-    RGB["Four upper-corner IMX519 USB 3.0 Type-A cameras"]
+    RGB["Four Arducam B0471C IMX519 USB-C cameras"]
     TH["Lepton 3.5 + PureThermal 3"]
-    HUB["Externally powered USB 3.0 hub"]
+    HUB["USBGear USBG-BREC304, 4-port, 5V/2A hub"]
     J["Existing Jetson Orin NX 16 GB"]
     STORE["Local persistent storage"]
     UI["Dock status / maintenance UI"]
@@ -566,16 +566,16 @@ flowchart LR
     DC -->|"Interlock-safe enable request"| J
     J -->|"3.3V logic or approved interface"| SW
     SW -->|"Switched LED power"| LED
-    RGB -->|"UVC video over USB 3.0 Type-A"| HUB
-    TH -->|"Thermal UVC data over USB"| HUB
-    PS -->|"Rated hub DC power (>=20% margin)"| HUB
-    HUB -->|"USB 3.0 data"| J
+    RGB -->|"USB-C to Type-A, USB 3.2 Gen 1 UVC"| HUB
+    TH -->|"Thermal UVC data over separate host USB port"| J
+    PS -->|"Regulated 5 V / 2 A input; verify >=20% margin"| HUB
+    HUB -->|"USB 3.2 Gen 1 upstream data"| J
     J -->|"Local JSON status + reason codes"| DC
     J -->|"Images / metrics / log files"| STORE
     DC -->|"Status and service prompt"| UI
 ```
 
-**Block boundaries and wiring constraints:** The dock's existing controller has final authority over operational safety. The Jetson controls the lighting only through an approved driver and a controller-authorized inspection state; a safe de-energized state is required on crash, timeout, or aborted inspection. The externally powered USB 3.0 hub consolidates the 5 active USB endpoints (`4 × IMX519` at `~6 W` max total + `1 × PureThermal 3` at `< 1 W`) with a dedicated DC supply maintaining at least a **20% power margin**. The hub's upstream connection, number of true root-bus controllers, and available bandwidth shall be measured; sequential acquisition reduces simultaneous traffic but does not guarantee zero USB contention. The thermal core/USB board may require an independent stabilized power path through the hub. Lighting power and Jetson GPIO shall never be directly tied at incompatible voltage levels. [7][12][11][28]
+**Block boundaries and wiring constraints:** The dock’s existing controller has final authority over operational safety. The Jetson controls the lighting only through an approved driver and a controller-authorized inspection state; a safe de-energized state is required on crash, timeout, or aborted inspection. The selected USBGear USBG-BREC304 hub has four USB-A downstream ports, all allocated to the four RGB cameras. Connect the PureThermal 3 interface to a separate Jetson host USB port and verify that the host provides a suitable independent connection. If it does not, revise the hub architecture to provide at least five downstream device connections, then repeat power and bandwidth checks. The hub’s 5 V/2 A supply provides 10 W total; maintain at least 20% headroom by keeping measured hub input at or below 8 W (1.6 A). Measure the upstream link, host controller assignment, bandwidth and device enumeration; sequential acquisition reduces simultaneous traffic but does not guarantee zero USB contention. Lighting power and Jetson GPIO shall never be directly tied at incompatible voltage levels. [7][12][11][28][47][60]
 
 ### 3.2 Processing decomposition and subsystem data flow
 
@@ -639,10 +639,10 @@ flowchart TD
 | Dock controller/adapter → Jetson | **Authenticated loopback HTTP/JSON** at `127.0.0.1:8765`; `POST /v1/inspections` | `schema_version`, `request_id`, `drone_id`, `safe_to_inspect`, mandatory check set, request time; immediate acknowledgment | Dock-side client/adapter is an assumed sponsor integration interface; team service is implemented without sponsor source code. |
 | Dock controller/adapter → Jetson | `POST /v1/inspection-authorization`, **1 Hz** heartbeat | `request_id`, current `safe_to_inspect`, dock state, monotonic sequence | A lost heartbeat for **2 seconds**, authorization withdrawal, or invalid state aborts the inspection; lighting fails off. |
 | Jetson → dock controller/adapter | `GET /v1/inspections/{request_id}`, HTTP/JSON polling; 1 Hz while pending | `inspection_id`, current phase, overall/per-component result, `reason_codes`, quality, duration and evidence handles | **3-second** request acknowledgment limit; completed result by **300 seconds**; duplicate `request_id` returns the same inspection rather than rerunning. |
-| Four cameras → hub/Jetson | USB 3.0 Type-A UVC, V4L2 `/dev/video*`; native YUY2 preferred (`4656 × 3496` target) | RGB frames, stable device IDs, dimensions, timestamps, focus metadata | Four IMX519 cameras, `65°` HFOV baseline; sequential acquisition; verify supported native format rather than assuming vendor listing guarantees delivery. [11][28] |
-| Thermal module → hub/Jetson | PureThermal 3 USB UVC radiometric pipeline | Raw 16-bit samples where supported, timestamps, thermal units/scale, sensor state | One Lepton 3.5, mandatory upper-battery ROI; fail closed if calibrated temperatures cannot be produced. [5][6][13] |
+| Four B0471C cameras → USBGear hub → Jetson | USB 3.2 Gen 1 UVC/V4L2; USB-C camera connections to USB-A hub ports; native YUY2 preferred (`4656 × 3496` target) | RGB frames, stable device IDs, dimensions, timestamps, focus metadata | Four enclosed IMX519 cameras, `65°` HFOV baseline; sequential acquisition; four downstream ports allocated to RGB; verify supported native format and close-focus behavior on the exact SKU. [11][28][47][60] |
+| Thermal module → separate Jetson USB host port | PureThermal 3 USB UVC radiometric pipeline | Raw 16-bit samples where supported, timestamps, thermal units/scale, sensor state | One Lepton 3.5, mandatory upper-battery ROI; the selected four-port hub is fully allocated to the cameras, so verify an independent host port before integration; fail closed if calibrated temperatures cannot be produced. [5][6][13][60] |
 | Jetson → LED switches | 3.3 V-compatible GPIO via rated normally-off switch and dock authorization gate | `GENERAL` / `OFF` enable, optional experimental mode | Two independently switched 12 V channels; lost authorization or watchdog power makes lights OFF. [7][12] |
-| Dock aux rail → peripherals | Protected **12 V/5 A** DC feed, 12 V/3 A lighting branch, **5 V/4 A** hub converter | Regulated voltage/current, protected returns, fuse status | Sensor load ~7 W; hub supply ≥20% margin; Jetson uses existing protected supply. |
+| Dock aux rail → peripherals | Protected **12 V/5 A** DC feed, 12 V/3 A lighting branch, regulated **5 V/2 A hub input** | Regulated voltage/current, protected returns, fuse status | Four cameras draw up to 5.92 W combined; hub input must remain at or below 8 W to retain 20% margin; Jetson uses existing protected supply. [47][60] |
 | Jetson → storage | Local restricted filesystem + JSON/SQLite manifest | Accepted JPEG evidence, selected crops, thermal record, logs and versions | **64 GB evidence allocation; 30-day rolling retention; 20 runs/day × 25 MB/run planning basis**. |
 
 **Fixed dock communication contract:** Each request includes a unique `request_id`, a `drone_id`, the standard mandatory-check list, timestamp, and current `safe_to_inspect` authorization. The inspection service acknowledges a valid request within 3 seconds and reports completion within 300 seconds. The dock-side adapter posts a 1 Hz authorization heartbeat; the inspection is aborted if the last valid heartbeat becomes older than 2 seconds. One failed frame-quality check may trigger **one** safe recapture of the affected camera; no unbounded retry is permitted. Requests older than **10 seconds** at receipt, malformed/unauthenticated requests, and conflicting duplicate IDs shall be rejected. The response schema is version **`1.0`** and includes `request_id`, `inspection_id`, UTC timestamp, overall/per-component state, reason codes, modality validity, evidence handles, and model/configuration versions. `WARN`, `FAIL`, and `UNVERIFIED` indicate a maintenance-review hold request; dock flight and interlock authority remain separate. These numerical protocol values are adopted project assumptions and must pass simulated and on-dock verification.
@@ -828,29 +828,29 @@ This budget estimates simultaneous inspection loads with both LED strips at full
 | Inspection load | Quantity | Low (W total) | High (W total) | Basis |
 |---|---:|---:|---:|---|
 | Jetson Orin NX 16GB module | 1 | 10 | 25 | Assumed module power modes. |
-| RGB cameras on powered USB hub | 4 | 6 | 10 | Allow 1.5–2.5 W per camera; verify at startup and capture. |
+| RGB cameras on powered USB hub | 4 | 3.08 | 5.92 | Four B0471C units; Arducam lists 0.77 W minimum and 1.48 W maximum per camera. [47] |
 | Thermal camera and USB interface | 1 set | 1 | 1 | Provisional allowance for the Lepton and PureThermal board together. |
 | 12 V white LED strips | 2 × 1 m | 20 | 20 | Each strip draws 10 W at full brightness [7]. |
 | Powered USB hub electronics | 1 | 1 | 2 | Hub overhead only; connected devices are counted separately. |
-| Spare USB accessory allowance | 0–1 | 0 | 2.5 | Reserve from the workbook; no microphone is required. |
+| Spare USB accessory allowance | 0 | 0 | 0 | No spare downstream hub ports in the selected four-camera configuration; PureThermal uses a separate host port. |
 | Jetson carrier, fan and lighting controls | 1 set | 2 | 4 | Provisional allowance; verify on selected hardware. |
-| **Total at inspection devices** | | **40** | **64.5** | Excludes charging, dock motors and other existing loads. |
-| **Estimated draw across both dock supplies** | | **47.1** | **75.9** | Device total divided by 0.85, assuming 85% overall conversion efficiency. |
+| **Total at inspection devices** | | **37.08** | **57.92** | Excludes charging, dock motors and other existing loads. |
+| **Estimated draw across both dock supplies** | | **43.6** | **68.1** | Device total divided by 0.85, assuming 85% overall conversion efficiency. |
 
-**USB hub sizing.** The high case is 10 W for the RGB cameras, 1 W for the thermal camera and interface, 2 W for the hub and 2.5 W of spare capacity: **15.5 W total**. Adding 20% gives **18.6 W, or 3.72 A at 5 V**. The planned 5 V/4 A supply provides 20 W. Verify that the hub can supply the required current both overall and at each port.
+**USB hub sizing.** The four cameras draw up to **5.92 W** combined at the published maximum; add the existing **2 W** high-case hub-electronics allowance for **7.92 W**. Applying a 20% margin gives **9.50 W (1.90 A at 5 V)**, just within the selected hub’s **5 V/2 A (10 W)** supply. The remaining margin is small, so verify the complete hub input at peak camera capture and require **≤8 W / 1.6 A** to retain 20% headroom. Each camera’s maximum listed draw is below the hub’s stated 900 mA per-port limit. The PureThermal interface is not on this hub.
 
 **Lighting branch.** Each 1 m strip draws about **0.83 A at 12 V**. Together they draw **1.67 A (20 W)**. The dock powers the strips through one driver per strip [7][12]; the Jetson only sends control signals. Request a regulated **12 V, 3 A** branch. Its 36 W rating is available capacity, not an additional load. If the dock provides regulated 12 V with enough spare current, no buck converter is needed for the strips. If the assigned rail is above 12 V, use a buck converter rated to deliver at least 3 A continuously at 12 V under dock operating conditions.
 
-**Dock supply check.** The design assumes the Jetson stays on its existing supply and the peripherals use a protected **12 V, 5 A (60 W)** auxiliary feed. With the LEDs powered directly at 12 V and an assumed 85% efficiency for the hub converter, the lights and fully loaded hub draw an estimated **20 + 15.5/0.85 = 38.2 W**, or **3.19 A at 12 V**. That leaves an estimated **21.8 W** on the auxiliary feed for controls and transient loads. The 75.9 W estimate in the table covers both supplies combined.
+**Dock supply check.** The design assumes the Jetson stays on its existing supply and the peripherals use a protected **12 V, 5 A (60 W)** auxiliary feed. If the USB hub is powered from that DC feed through an 85%-efficient 12 V-to-5 V converter, the high-case hub load of **7.92 W** draws about **9.32 W** from the 12 V rail. With the **20 W** lights, the estimated auxiliary load is **29.32 W (2.44 A at 12 V)**, leaving about **30.68 W** for controls and transient loads. If the included 5 V/2 A AC adapter is used instead, recalculate from the actual source. The `68.1 W` estimate in the table covers both supplies combined.
 
-**Verification before integration.** Valinor confirmed that the dock supplies equipment at several voltages. Confirm the assigned connector, voltage range, protection and available continuous and peak current while other dock equipment is operating. Measure the dock input, hub input and each LED branch at startup and with all inspection loads active, including a thermal calibration cycle. Record the voltage at each load and the highest current observed. Update the budget and verify that the hub retains at least 20% margin above the higher of the estimated or measured peak demand.
+**Verification before integration.** Confirm the assigned dock connector, voltage range, protection and available continuous and peak current while other dock equipment is operating. Verify the USBGear hub input connector and polarity before using a DC converter. Connect four cameras to the hub and the PureThermal interface to a separate Jetson host port; if no such host port is available, revise the hub architecture. Measure the hub input at startup and during peak capture, record voltage and maximum current, and require `≤1.6 A` to preserve 20% margin on the 2 A supply. Measure each LED branch and overall dock input with all inspection loads active, including thermal calibration. Update the budget if measured peaks exceed these limits.
 
 ### 4.2 RGB camera hardware and acquisition
 **Function:** Provide four upper-corner component views—each responsible for a singular drone quadrant with centerline overlap (`3–4 in` above the drone's upper plane)—and repeatable high-resolution still capture. [11][28].
 
 | Inputs | Outputs | Interfaces / protocols | Design values |
 |---|---|---|---|
-| Camera IDs, mode/focus requests, LED-stable event, calibration configuration, USB 3.0 power | Native RGB still frames (`4656 × 3496`), camera ID, original pixel dimensions, timestamps, quality metadata | USB 3.0 Type-A UVC/V4L2 through powered USB 3.0 hub to Jetson; RGB buffers to preprocessing | Four **16 MP Sony IMX519 USB 3.0 Type-A** cameras (`65°` HFOV × `51°` VFOV, motorized focus `10 cm–∞`), mounted **3–4 in above drone plane** (`~14°–18°` pitch); single-quadrant assignment (`11.40 in` near corner to `25.32 in` center) with centerline overlap; **5 px/mm** sampling target (**`28.77 in` / `730.8 mm` max working distance**) for **1.0 mm** target feature size (**5 px** across); no claimed minimum defect size before testing |
+| Camera IDs, mode/focus requests, LED-stable event, calibration configuration, USB 3.0 power | Native RGB still frames (`4656 × 3496`), camera ID, original pixel dimensions, timestamps, quality metadata | USB 3.2 Gen 1 UVC/V4L2 through USBGear USBG-BREC304; four B0471C USB-C cameras connect to its four USB-A ports; the PureThermal interface uses a separate Jetson host USB port | Four **Arducam B0471C enclosed 16 MP Sony IMX519** cameras (`65°` HFOV × `51°` VFOV, autofocus; close-range behavior to be verified), mounted **3–4 in above drone plane** (`~14°–18°` pitch); single-quadrant assignment (`11.40 in` near corner to `25.32 in` center) with centerline overlap; **5 px/mm** sampling target (`28.77 in` maximum working distance) for a `1.0 mm` target feature; no claimed minimum defect size before testing [47][60] |
 
 - **RGB-01:** The system **shall** capture one camera at a time for the initial multi-camera pass and record the camera, assigned quadrant, and lighting mode for each accepted image.
 - **RGB-02:** The camera mounts **shall** position the four modules in the upper enclosure corners (`3–4 in` above the drone plane) so each camera covers its assigned drone quadrant with centerline overlap against the 14-position mandatory component coverage map in Section 1.3; invisible components **shall** be marked `NOT_VISIBLE` rather than inferred present.
@@ -859,7 +859,7 @@ This budget estimates simultaneous inspection loads with both LED strips at full
 - **RGB-05:** The camera hardware and UVC motorized focus configuration **shall** maintain repeatable focus and stable mounting during repeated simulated docking cycles.
 - **RGB-06:** Each chosen camera/lens **shall** undergo field-of-view, geometric calibration, and ISO 12233 slanted-edge test captures at representative near-corner (`~11.40 in`), quadrant-midpoint (`~18.03 in`), drone-center (`25.32 in`), and maximum `5 px/mm` (`28.77 in`) locations.
 - **RGB-07:** The team **shall** measure any effect of USB 3.0 hub sharing and sequential capture on total cycle time and report the observed maximum, rather than assume bandwidth is never limiting.
-- **RGB-08:** For the selected IMX519 USB 3.0 Type-A camera SKU, the team **shall** document supported native resolutions, frame/still formats (uncompressed YUY2 vs. MJPEG), USB speed, and power draw (`≤ 1.48 W` max per camera, maintaining `≥ 20%` power margin on the USB hub), then test whether compressed MJPEG, any sensor downsampling, and shared-hub traffic degrade `1.0 mm` target-feature evidence or increase capture time. Measured native and model-input resolutions **shall** be recorded separately.
+- **RGB-08:** For the selected **Arducam B0471C** camera SKU, document supported native resolutions, frame/still formats (uncompressed YUY2 vs. MJPEG), USB speed and maximum camera draw (`≤1.48 W` each). With four cameras on the USBGear USBG-BREC304, measure the complete hub input and require `≤8 W / 1.6 A` at peak capture to retain 20% margin on its 5 V/2 A supply; test each port and shared-hub traffic. Connect PureThermal to a separate host port. Verify autofocus and focus commands at the installed near, midpoint and far working distances, then test whether MJPEG, sensor downsampling or shared traffic degrades `1.0 mm` target-feature evidence or increases capture time. Record native and model-input resolutions separately. [47][60]
 
 **Functional sequence:** `Select stable device → set mode/exposure/focus → request frame → flush stale buffer → capture → timestamp and label → quality gate → release endpoint → next camera.`
 
@@ -1023,7 +1023,7 @@ The ML verification plan will treat a false `PASS` on a seeded fault as a primar
 
 ### 5.2 Electrical, thermal, and physical safety
 
-A metal enclosure containing USB-powered devices (`~7–11 W` total across the 4 IMX519 cameras and PureThermal 3) and 12V / 20W nominal lighting requires cable restraint, appropriate fusing, supply sizing (`≥ 20%` power margin on the powered USB 3.0 hub), safe separation of loads from logic GPIO, ventilation and temperature checks. All camera brackets, hub mounts, and lighting fixtures must remain outside the drone's landing envelope and be mechanically retained against vibration. IEC 62368-1 is consulted as an electrical/equipment safety reference, not presented as a verified compliance claim. [7][12][11][28][15]
+A metal enclosure containing USB-powered devices (`~6.9 W` for four cameras at their published maximum plus the provisional `1 W` PureThermal interface allowance, before USB hub overhead) and 12 V / 20 W nominal lighting requires cable restraint, appropriate fusing, supply sizing (`≥20%` power margin on the selected 5 V/2 A hub supply), safe separation of loads from logic GPIO, ventilation and temperature checks. The four-port hub is fully allocated to the RGB cameras; connect PureThermal through a separate Jetson host port. All camera brackets, hub mounts, and lighting fixtures must remain outside the drone landing envelope and be mechanically retained against vibration. IEC 62368-1 is consulted as an electrical/equipment safety reference, not presented as a verified compliance claim. [7][12][11][28][15][47][60]
 
 ### 5.3 Measurement quality and misleading results
 
@@ -1057,11 +1057,11 @@ To reduce unnecessary maintenance work, a flagged component will be accompanied 
 
 ### 6.1 Budget proposal and subsystem justification
 
-The budget adopts **four IMX519 UVC cameras, one Lepton 3.5/PureThermal 3, two LED strips and the existing Jetson Orin NX 16 GB**. The Orin NX and dock controller are **existing, sponsor-provided assets with $0 incremental purchase cost** in this budget. The 7 in PX4-compatible test quadrotor is also budgeted at **$0 to the team under the project assumption that Valinor assists in sourcing and furnishing it**; this is a planning assumption, not a statement that the drone has been delivered or funded. Listed camera and integration prices are internal cost allowances, not purchase quotes. All amounts are USD before tax and shipping. [5][6][7][11][12][28][57]
+The budget adopts **four Arducam B0471C enclosed IMX519 UVC cameras, one USBGear USBG-BREC304 four-port powered hub, one Lepton 3.5/PureThermal 3, two LED strips and the existing Jetson Orin NX 16 GB**. The four hub ports are allocated to RGB; the thermal interface needs a separate host USB port. The Orin NX and dock controller are **existing, sponsor-provided assets with $0 incremental purchase cost** in this budget.
 
 | Subsystem / item | Qty | Unit cost or allowance | Proposed total | Basis and purpose |
 |---|---:|---:|---:|---|
-| RGB: 16 MP Sony IMX519 USB 3.0 Type-A UVC cameras | 4 | $126 | $504 | Fixed four-quadrant hardware baseline; $126 unit planning allowance |
+| RGB: Arducam B0471C enclosed 16 MP Sony IMX519 USB 3.2 Gen 1 UVC cameras | 4 | $144.99 | $579.96 | Rounded manufacturer list-price estimate for the cased SKU; replace with the order price at purchase. [47] |
 | RGB: upper-corner camera brackets/adjustable mounts | 4 sets | $10–$20 | $40–$80 | 3.5 in nominal elevated corner fixtures |
 | Thermal: FLIR Lepton 3.5 | 1 | $164 | $164 | Quoted candidate price [5] |
 | Thermal: PureThermal 3 board | 1 | $120 | $120 | Rounded listed $119.99 [6] |
@@ -1069,17 +1069,17 @@ The budget adopts **four IMX519 UVC cameras, one Lepton 3.5/PureThermal 3, two L
 | Lighting: Adafruit 5648 switching board | 2 | $3.95 | $7.90 | Independent LED switching [12] |
 | Lighting: regulated 12 V/3 A supply/converter | 1 | $25–$45 | $25–$45 | Supports nominal 20 W LED load |
 | Lighting: diffusers and optical hardware | 1 set | $25–$50 | $25–$50 | Glare and contrast management |
-| Integration: externally powered USB 3.0 hub | 1 | $50–$80 | $50–$80 | Hub input design based on 5 V/4 A converter and ≥20% sensor power margin |
-| Integration: USB cables, wiring and protected DC conversion | 1 lot | $30–$60 | $30–$60 | Includes 5 V/4 A hub power conversion allowance |
+| Integration: USBGear USBG-BREC304 four-port USB 3.2 Gen 1 powered hub | 1 | $25.99 | $25.99 | Four Type-A downstream ports; supplied 5 V/2 A adapter; 900 mA per port; 5 Gbps; Amazon ASIN B012DZ4NJ8. [60] |
+| Integration: USB-C-to-Type-A data cables, wiring and protected DC conversion | 1 lot | $30–$60 | $30–$60 | Four camera data cables and, if required by the dock power source, a regulated 12 V-to-5 V converter rated for at least 2 A; verify hub connector/polarity. |
 | Lighting: adjustable fixture brackets | 1 lot | $30–$60 | $30–$60 | Adjustable opposed lighting mounting |
 | Existing Jetson Orin NX 16 GB / dock controller | 1 existing | $0 incremental | $0 | Shared installed computing platform |
 | PX4-compatible 7 in quadrotor prototype | 1 assumed client-furnished | $0 to team | $0 | Acquired through client support under budget assumption [57] |
-| **Mandatory prototype subtotal** | | | **$1,019.80–$1,194.80** | Hardware additions only |
+| **Mandatory prototype subtotal** | | | **$1,071.75–$1,216.75** | Updated using the B0471C and USBGear list-price estimates. |
 | Optional storage expansion / backup | 1 | $25–$60 | $25–$60 | Only if the planned local 64 GB allocation cannot be provided |
-| **Subtotal with optional storage** | | | **$1,044.80–$1,254.80** | No duplicate Jetson, drone, or hub purchase |
+| **Subtotal with optional storage** | | | **$1,096.75–$1,276.75** | No duplicate Jetson, drone, or hub purchase. |
 | OpenCV, GStreamer, DeepStream 7.1, Darknet, CVAT, Python tools | — | $0 new software purchase | $0 | License/dependency audit required for transfer |
 
-**Planning reserve:** The adopted **15% contingency** on the mandatory hardware subtotal is **$152.97–$179.22**, producing a **mandatory purchase budget of $1,172.77–$1,374.02**. Including optional storage expansion first produces **$1,201.52–$1,443.02** after the same reserve. These are planning estimates, not supplier invoices or approved expenditures.
+**Planning reserve:** The adopted **15% contingency** on the mandatory hardware subtotal is **$160.76–$182.52**, producing a **mandatory purchase budget of $1,232.51–$1,399.26**. Including optional storage first produces **$1,261.26–$1,468.26** after the same reserve. Camera and hub prices are planning estimates based on currently listed manufacturer prices; use the actual seller prices on the purchase record. [47][60]
 
 **Equipment acquisition and power baseline:** The team shall procure the four cameras, thermal hardware, lighting, powered hub and mounting/electrical materials within the above cost bands. The existing Orin NX/dock controller will be reused without purchasing another compute board. The prototype design uses the assumed protected **12 V/5 A auxiliary feed**; the team shall electrically verify the actual dock feed before connection. The prototype airframe is the PX4-compatible 7 in quadrotor assumed to be furnished without a charge to the team's budget. If the supplier quotation or client-furnished equipment differs, the project budget will be formally revised instead of leaving the procurement scope undefined. [57]
 
@@ -1092,7 +1092,7 @@ The supplied research demonstrates that the team has developed work in RGB/optic
 | Subsystem or deliverable | Assigned lead / responsibility | Skills needed | Main responsibility |
 |---|---|---|---|
 | ML component detector, datasets, runtime, fusion and reporting schema | **Lucas Taylor** | Python/C++, OpenCV, DeepStream/TensorRT, evaluation metrics and JSON contracts; implement the documented loopback HTTP/JSON endpoint with the integration group | Benchmark component detector and model resource use; define fusion/reporting behavior and ML evaluation plan |
-| Four-camera optics, mounts and USB 3.0 acquisition | RGB camera research contributor — **Aaron Thongmanivong** | Lens/FOV math, UVC/V4L2, calibration, mechanical corner mounting | Implement the chosen IMX519 USB 3.0 Type-A design; single-quadrant coverage (`5 px/mm` out to `28.77 in` for `1.0 mm` features), ISO 12233, and sequential capture tests |
+| Four-camera optics, mounts and USB 3.2 Gen 1 acquisition | **Aaron Thongmanivong** | Lens/FOV math, UVC/V4L2, calibration, mechanical corner mounting | Implement the B0471C USB-C cameras on the USBGear Type-A hub; verify close focus, cased-module clearance, single-quadrant coverage (`5 px/mm` out to `28.77 in` for `1.0 mm` target features), ISO 12233 and sequential capture tests |
 | LED layout and supply/switching | Controlled lighting research contributor — **Samuel Oke** | 12V sizing, MOSFET drivers, optical test rig, safe wiring | Build repeatable light fixture, current and contrast trials |
 | Lepton/PureThermal calibration and ROIs | Thermal research contributor — **Michael Lamberth** | Radiometry, USB imaging, emissivity/temperature validation | Thermal capture, reference verification, component mapping |
 | Dock electrical/mechanical integration | **Whole Team** | Jetson software inventory, USB 3.0 hub power (`≥ 20%` margin), team-created CAD/clearance plans, interlocks and dock IPC; coordinate with Valinor | Check enclosure, supplies, cable routing and existing dock status interface |
@@ -1121,10 +1121,11 @@ The team has resolved open sponsor-dependent design questions into definite requ
 | Baseline choice / verification risk | Consequence if assumption is incorrect | Verification and response owner |
 |---|---|---|
 | Jetson Orin NX 16 GB running the selected JetPack 6.1 / DeepStream 7.1 inspection stack with 4 GB service memory headroom | Runtime mismatch, contention, or missed dock deadlines | Inspect installed software and profile shared workloads; require zero missed control deadlines and ≤10% p95 controller-latency increase — Lucas / integration team |
-| Four IMX519 cameras at 3.5 in above the drone plane, 65°/51° FOV, ≥5 px/mm across each assigned quadrant | Camera clipping or inability to observe one of 14 mandatory RGB regions | Verify the vendor SKU, USB format, focus and ISO 12233 test targets at near/mid/center positions — Aaron |
+| Four B0471C enclosed cameras at 3.5 in above the drone plane, 65°/51° FOV, ≥5 px/mm across each assigned quadrant | Camera clipping or inability to inspect one of 14 required positions; close focus may fail at sub-meter working distances | Verify the cased SKU, USB format, autofocus/focus commands, and ISO 12233 targets at near, midpoint and far positions; measure actual working distance — Aaron |
 | A single 12 in stand-off Lepton images the upper battery casing with ≥16 valid thermal samples | Required thermal ROI is occluded or too small; outcome becomes `UNVERIFIED` | Image the selected test quadrotor, map ROI samples, and calibrate to a temperature reference — Michael |
 | +8 °C thermal WARN / +12 °C confirmed FAIL relative to matched healthy reference | Prototype false alerts or missed seeded temperature anomalies | Capture healthy non-charging reference states and safe controlled temperature-target trials; revise decision rules if bench data invalidate limits — Michael / Lucas |
-| Protected 12 V/5 A auxiliary feed, 12 V/3 A LED branch and 5 V/4 A hub power | Voltage, current, heat, or connector limits could prevent safe installation | Measure actual dock rail, fuse capacity, hub supply and switched load before physical integration; block unsafe power connections — Samuel / integration team |
+| Four camera connections use all four USBGear hub ports; PureThermal requires a separate host port | Thermal acquisition cannot connect or may contend with RGB if no host port is available | Verify the Jetson carrier’s available USB host ports and enumerate all five endpoints during sequential capture; revise hub architecture if a separate port is unavailable — integration team |
+| Protected 12 V/5 A auxiliary feed, 12 V/3 A LED branch and USBGear 5 V/2 A hub supply | Hub peak draw may exceed the limit for 20% headroom, or the actual dock connector may be unsuitable | Verify power source, hub input connector/polarity, fuse and dock rail; measure peak hub draw and require ≤8 W / 1.6 A — Samuel / integration team |
 | Sponsor-side authenticated loopback caller with 1 Hz authorization heartbeat | No live inspection permission or result integration without a client-side adapter | Test full protocol against team-owned mock caller first; verify actual dock adapter before acceptance; never require proprietary dock code transfer — Aaron / Lucas |
 | Sponsor-assisted 7 in quadrotor with 20 × 20 in maximum footprint and top-exposed battery casing, at $0 to team | Fixture geometry, checklist visibility, and equipment budget change if an alternate airframe arrives | Validate the delivered airframe against the design envelope; formally revise airframe and procurement assumptions if needed — Aaron / whole team |
 | 64 GB writable storage, 20 inspections/day, 25 MB/run, 30-day retention | Space exhaustion or missing traceability | Measure saved evidence sizes, simulate full disk, verify rolling deletion and restricted access — Lucas |
@@ -1230,7 +1231,7 @@ References are numbered consecutively. Repeated entries for the same source have
 
 [46] NVIDIA, "DeepStream SDK Collection." [Original source](https://catalog.ngc.nvidia.com/orgs/nvidia/-/collections/deepstream_sdk). (From ML condensed research.)
 
-[47] Arducam, [*B0471 16 MP IMX519 USB 3.0 Camera Module Datasheet*](https://www.arducam.com/downloads/datasheet/B0471_16MP_IMX519_USB3.0_Camera_Datasheet.pdf); Arducam, [*16 MP IMX519 USB 3.0 Camera Product Specifications*](https://www.arducam.com/arducam-16mp-imx519-fast-auto-focus-usb-3-0-camera-module-without-enclosure.html).
+[47] Arducam, [*B0471 16 MP IMX519 USB 3.0 Camera Module Datasheet*](https://www.arducam.com/downloads/datasheet/B0471_16MP_IMX519_USB3.0_Camera_Datasheet.pdf), and [*B0471/B0471C product information*](https://www.arducam.com/blog/product/arducam-16mp-imx519-motorized-focus-usb-3-0-camera-module/) (identifies B0471C as the cased variant); Amazon, [B0471C listing, ASIN B0CXTBXS1L](https://www.amazon.com/dp/B0CXTBXS1L).
 
 [48] GroupGets, "FLIR Lepton 3.5 Listing / Thermal Imaging Collection." [Original source](https://groupgets.com/collections/thermal-imaging). (From ML condensed research.)
 
@@ -1257,6 +1258,8 @@ References are numbered consecutively. Repeated entries for the same source have
 [58] Google Gemini, AI-assisted technical editing and formatting, 2026 (disclosed by the camera research contributor; not a technical validation source).
 
 [59] OpenAI, *ChatGPT (GPT-6)*, assisted in organizing the 2026 conceptual-design revisions, combining research citations, drafting proposed requirement/rebuttal wording, and document editing, November 18, 2026. Not an independent engineering validation source.
+
+[60] USBGear, [*4-Port USB 3.2 Gen 1 Mountable Charging and Data Hub, USBG-BREC304*](https://www.usbgear.com/usbg-brec304.html) (four USB-A downstream ports, 5 Gbps, 5 V/2 A adapter, up to 900 mA per port; listed price $25.99 at time checked); Amazon, [ASIN B012DZ4NJ8](https://www.amazon.com/dp/B012DZ4NJ8).
 
 The team is responsible for confirming the correctness of all specifications, source links, and proposed decisions. Neither AI assistance nor the cited research papers establish tested performance on Valinor’s drone or dock.
 
