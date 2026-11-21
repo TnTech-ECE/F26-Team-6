@@ -348,8 +348,8 @@ This is an inspection aid, not an aircraft airworthiness certification device. A
 
 | ID | System-level **shall** statement | Design basis |
 |---|---|---|
-| <span style="white-space: nowrap;">SYS-01</span> | The system **shall** begin an inspection only after the dock controller confirms a secured, non-operating drone and an inspection-permitted state. | Safety/operational constraint; proposed, client confirmation needed [3][9][5][6][13] |
-| SYS-02 | The system **shall** obtain RGB views of every designated inspectable exterior component using the installed four-camera quadrant arrangement and shall identify any required component that cannot be observed. | Camera and ML team concept; final coverage list TBD [3][9][11][28] |
+| <span style="white-space: nowrap;">SYS-01</span> | The system **shall** begin an inspection only after the dock controller confirms a secured, non-operating drone and an inspection-permitted state. | Safety/operational constraint [3][9][5][6][13] |
+| SYS-02 | The system **shall** obtain RGB views of every designated inspectable exterior component using the installed four-camera quadrant arrangement and shall identify any required component that cannot be observed. | Camera and ML team concept [3][9][11][28] |
 | SYS-03 | The system **shall** acquire at least **16 valid, non-saturated thermal samples** within a designated ROI, from a sensor confirmed in calibrated radiometric mode (FLIR Lepton 3.5, rated **±5 °C or ±5%** accuracy), before reporting a thermal status for that region; fewer valid samples, an uncalibrated sensor, or a disconnected/obstructed camera **shall** yield `UNVERIFIED` for that region rather than a `PASS`. | Thermal acceptance target tied to ROI validity in §4.4 (THM-04, THM-07) and the Lepton 3.5 datasheet; applicable regions depend on validated geometry [5][6][13] |
 | SYS-04 | The system **shall** record the lighting mode for each accepted RGB image and accept only frames captured after that mode settles. In the repeatability test, each required view **shall** keep the mean brightness of a fixed gray patch within **±5% of that view’s 10-cycle mean** across 10 independent light off/on cycles. | Proposed lighting/camera acceptance limit for Valinor review; test method in §4.3. [7][12][11][28] |
 | SYS-05 | The system **shall** run the primary inspection without requiring continuous internet access. | Edge-processing design objective [3][9] |
@@ -1269,22 +1269,22 @@ The team is responsible for confirming the correctness of all specifications, so
 
 ## 8. Statement of contributions
 
-> **Member:** [Taylor, Lucas W.] 
+> **Member:** Taylor, Lucas W.  
 > **Contribution statement:** Researched the AI/ML inspection architecture, including YOLOv4 component detection, NVIDIA Jetson Orin NX 16 GB deployment considerations, camera preprocessing, sensor fusion, JSON reporting, and preliminary model evaluation planning. Contributed to software integration and revision of the conceptual design.  
-> **Date reviewed / signed by member:** [10/23/2026]
+> **Date reviewed / signed by member:** 10/23/2026
 
-> **Member:** [Thongmanivong, Aaron N.]  
-> **Contribution statement:** [Researched the RGB camera subsystem for the drone inspection system, including the 16 MP Sony IMX519 USB 3.0 Type-A UVC camera selection, upper-corner single-quadrant mounting geometry (`5 pixels/mm` sampling target out to `28.77 in` max working distance for `1.0 mm` target feature size with centerline overlap), V4L2 sequential capture, and ISO 12233/15739 verification planning. Contributed findings and revisions to the conceptual design.]  
-> **Date reviewed / signed by member:** [11/19/2026]
+> **Member:** Thongmanivong, Aaron N.  
+> **Contribution statement:** Researched the RGB camera subsystem for the drone inspection system, including the 16 MP Sony IMX519 USB 3.0 Type-A UVC camera selection, upper-corner single-quadrant mounting geometry (`5 pixels/mm` sampling target out to `28.77 in` max working distance for `1.0 mm` target feature size with centerline overlap), V4L2 sequential capture, and ISO 12233/15739 verification planning. Contributed findings and revisions to the conceptual design.  
+> **Date reviewed / signed by member:** 11/19/2026
 
-> **Member:** [Oke, Samuel I.]  
-> **Contribution statement:** [Researched controlled lighting solutions for the drone inspection system, including LED selection, illumination requirements, and integration considerations. Evaluated how lighting conditions could affect image quality and the reliability of visual inspections.]  
-> **Date reviewed / signed by member:** [10/23/2026]
+> **Member:** Oke, Samuel I.    
+> **Contribution statement:** Researched controlled lighting solutions for the drone inspection system, including LED selection, illumination requirements, and integration considerations. Evaluated how lighting conditions could affect image quality and the reliability of visual inspections. 
+> **Date reviewed / signed by member:** 10/23/2026
 
-> **Member:** [Lamberth, Michael S.]  
-> **Contribution statement:** [Researched thermal imaging solutions for identifying abnormal temperatures in drone components. Evaluated thermal camera specifications, hardware integration requirements, and methods for incorporating temperature measurements into the inspection process.]  
-> **Date reviewed / signed by member:** [10/23/2026]
+> **Member:** Lamberth, Michael S.  
+> **Contribution statement:** Researched thermal imaging solutions for identifying abnormal temperatures in drone components. Evaluated thermal camera specifications, hardware integration requirements, and methods for incorporating temperature measurements into the inspection process.  
+> **Date reviewed / signed by member:** 10/23/2026
 
-> **Member:** [Heimermann, Benjamin C.]  
-> **Contribution statement:** [Researched the existing drone docking system, including its hardware configuration and integration constraints. Investigated applicable IEEE and IEC standards related to electrical safety, system reliability, and hardware integration to help ensure the proposed system follows relevant engineering practices.]  
-> **Date reviewed / signed by member:** [10/23/2026]
+> **Member:** Heimermann, Benjamin C.  
+> **Contribution statement:** Researched the existing drone docking system, including its hardware configuration and integration constraints. Investigated applicable IEEE and IEC standards related to electrical safety, system reliability, and hardware integration to help ensure the proposed system follows relevant engineering practices.  
+> **Date reviewed / signed by member:** 10/23/2026
