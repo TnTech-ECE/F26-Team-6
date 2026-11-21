@@ -230,8 +230,6 @@ The current design baseline reuses the existing NVIDIA Jetson Orin NX 16 GB as t
 | 15% planning reserve | $149.36–$171.11 |
 | **Planning budget including reserve** | **$1,145.11–$1,311.86** |
 
-The camera price is the $125.99-per-unit listing shown in the supplied product screenshot and is a price snapshot; confirm the live price and exact enclosed-camera variant at procurement. The hub amount is a planning estimate. Record actual order prices at procurement. The four hub ports serve the RGB cameras, and the PureThermal 3 interface requires a separate host USB port. Measure peak hub input power and retain at least 20% margin on its 5 V/2 A supply. The detailed BOM and assumptions govern the subsystem cost ranges; revise the estimate if supplier pricing or client-furnished equipment changes. [21][22]
-
 ## Personnel
 Team 6 consist of members whose experience and expertise covers hardware integration, programming, and technical writing. Individual skills as follows:
 
