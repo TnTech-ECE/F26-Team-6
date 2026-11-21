@@ -254,11 +254,15 @@ Remote pilots and dock operators need a clear report identifying which component
 People near flight operations have an interest in the early detection of faults that could put them at risk. Limiting camera coverage to the aircraft and dock also helps protect their privacy. The Federal Aviation Administration (FAA) is a regulatory stakeholder because the inspection report supports the remote pilot in command's preflight assessment.
 
 ## Timeline
-*   **Phase 1: Procurement & Architecture Setup** - Acquire UVC cameras, FLIR Lepton sensor, and edge compute hardware. Establish dock mounting constraints.
-*   **Phase 2: Subsystem Orchestration** - Develop the Python-based sequential capture loop to prevent USB bus saturation and integrate the OpenCV Variance of the Laplacian blur check.
-*   **Phase 3: Model Training** - Train visual anomaly models on pristine drone datasets (Anomalib) and calibrate thermal ROI thresholds.
-*   **Phase 4: Fusion & Integration** - Merge optical and thermal metrics into the Diagnostic Consensus Engine to output structured JSON telemetry (PASS, WARN, FAIL).
-*   **Phase 5: Field Testing** - Install the payload into the Valinor Dispatch dock and run full-cycle continuous tests to validate accuracy, latency, and reliability.
+<p align="center">
+  <img src="Research%20of%20Subsystems/GanttChart.png" alt="Project Gantt Chart" width="850">
+</p>
+
+
+<p align="center">
+  <em>Proposed dated project milestones through Capstone II. </em>
+</p>
+
 
 ## Specific/Broad Implications
 
@@ -1065,7 +1069,7 @@ The budget adopts **four Arducam B0471C enclosed IMX519 UVC cameras, one USBGear
 
 | Subsystem / item | Qty | Unit cost or allowance | Proposed total | Basis and purpose |
 |---|---:|---:|---:|---|
-| RGB: Arducam B0471C enclosed 16 MP Sony IMX519 USB 3.2 Gen 1 UVC cameras | 4 | $144.99 | $579.96 | Rounded manufacturer list-price estimate for the cased SKU; replace with the order price at purchase. [47] |
+| RGB: Arducam B0471C enclosed 16 MP Sony IMX519 USB 3.2 Gen 1 UVC cameras | 4 | $125.99 | $503.96 | Rounded manufacturer list-price estimate for the cased SKU; replace with the order price at purchase. [47] |
 | RGB: upper-corner camera brackets/adjustable mounts | 4 sets | $10–$20 | $40–$80 | 3.5 in nominal elevated corner fixtures |
 | Thermal: FLIR Lepton 3.5 | 1 | $164 | $164 | Quoted candidate price [5] |
 | Thermal: PureThermal 3 board | 1 | $120 | $120 | Rounded listed $119.99 [6] |
@@ -1078,9 +1082,9 @@ The budget adopts **four Arducam B0471C enclosed IMX519 UVC cameras, one USBGear
 | Lighting: adjustable fixture brackets | 1 lot | $30–$60 | $30–$60 | Adjustable opposed lighting mounting |
 | Existing Jetson Orin NX 16 GB / dock controller | 1 existing | $0 incremental | $0 | Shared installed computing platform |
 | PX4-compatible 7 in quadrotor prototype | 1 assumed client-furnished | $0 to team | $0 | Acquired through client support under budget assumption [57] |
-| **Mandatory prototype subtotal** | | | **$1,071.75–$1,216.75** | Updated using the B0471C and USBGear list-price estimates. |
+| **Mandatory prototype subtotal** | | | **$995.75–$1,140.75** | Updated using the B0471C and USBGear list-price estimates. |
 | Optional storage expansion / backup | 1 | $25–$60 | $25–$60 | Only if the planned local 64 GB allocation cannot be provided |
-| **Subtotal with optional storage** | | | **$1,096.75–$1,276.75** | No duplicate Jetson, drone, or hub purchase. |
+| **Subtotal with optional storage** | | | **$1,020.75–$1,200.75** | No duplicate Jetson, drone, or hub purchase. |
 | OpenCV, GStreamer, DeepStream 7.1, Darknet, CVAT, Python tools | — | $0 new software purchase | $0 | License/dependency audit required for transfer |
 
 **Planning reserve:** The adopted **15% contingency** on the mandatory hardware subtotal is **$160.76–$182.52**, producing a **mandatory purchase budget of $1,232.51–$1,399.26**. Including optional storage first produces **$1,261.26–$1,468.26** after the same reserve. Camera and hub prices are planning estimates based on currently listed manufacturer prices; use the actual seller prices on the purchase record. [47][60]
@@ -1256,14 +1260,15 @@ References are numbered consecutively. Repeated entries for the same source have
 [56] GroupGets, "PureThermal Breakout Board." [Original source](https://groupgets.com/products/purethermal-breakout-board). Historical alternative to selected PureThermal 3. (From thermal condensed research.)
 
 [57] Valinor Dispatch, "Follow-up on power availability, dock dimensions, prototype drone acquisition, lighting, and MAVLink motor control," client email correspondence, 2026. Internal project communication.
+[58] USBGear, [*4-Port USB 3.2 Gen 1 Mountable Charging and Data Hub, USBG-BREC304*](https://www.usbgear.com/usbg-brec304.html) (four USB-A downstream ports, 5 Gbps, 5 V/2 A adapter, up to 900 mA per port; listed price $25.99 at time checked); Amazon, [ASIN B012DZ4NJ8](https://www.amazon.com/dp/B012DZ4NJ8).
 
 ### 7.2 AI-assistance attribution
 
-[58] Google Gemini, AI-assisted technical editing and formatting, 2026 (disclosed by the camera research contributor; not a technical validation source).
+[59] Google Gemini, AI-assisted technical editing and formatting, 2026 (disclosed by the camera research contributor; not a technical validation source).
 
-[59] OpenAI, *ChatGPT (GPT-6)*, assisted in organizing the 2026 conceptual-design revisions, combining research citations, drafting proposed requirement/rebuttal wording, and document editing, November 18, 2026. Not an independent engineering validation source.
+[60] OpenAI, *ChatGPT (GPT-6)*, assisted in organizing the 2026 conceptual-design revisions, combining research citations, drafting proposed requirement/rebuttal wording, and document editing, November 18, 2026. Not an independent engineering validation source.
 
-[60] USBGear, [*4-Port USB 3.2 Gen 1 Mountable Charging and Data Hub, USBG-BREC304*](https://www.usbgear.com/usbg-brec304.html) (four USB-A downstream ports, 5 Gbps, 5 V/2 A adapter, up to 900 mA per port; listed price $25.99 at time checked); Amazon, [ASIN B012DZ4NJ8](https://www.amazon.com/dp/B012DZ4NJ8).
+
 
 The team is responsible for confirming the correctness of all specifications, source links, and proposed decisions. Neither AI assistance nor the cited research papers establish tested performance on Valinor’s drone or dock.
 
